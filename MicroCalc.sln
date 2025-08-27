@@ -1,9 +1,27 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36414.22 d17.14
+VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App.WepApi", "App.WepApi\App.WepApi.csproj", "{79A8551D-4A61-4113-B011-F4FC8D22E0FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App.CalcWorker", "App.CalcWorker\App.CalcWorker.csproj", "{0729B012-9122-47DA-B0EA-CDADD10D5C4D}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{79A8551D-4A61-4113-B011-F4FC8D22E0FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79A8551D-4A61-4113-B011-F4FC8D22E0FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79A8551D-4A61-4113-B011-F4FC8D22E0FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79A8551D-4A61-4113-B011-F4FC8D22E0FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0729B012-9122-47DA-B0EA-CDADD10D5C4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0729B012-9122-47DA-B0EA-CDADD10D5C4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0729B012-9122-47DA-B0EA-CDADD10D5C4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0729B012-9122-47DA-B0EA-CDADD10D5C4D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
