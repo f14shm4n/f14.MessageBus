@@ -10,7 +10,7 @@ namespace Shared.EventBus
     /// In memory implementation of the <see cref="IEventBusSubscriptionsManager{I}"/>.
     /// <inheritdoc cref="IEventBusSubscriptionsManager{I}"/>
     /// </summary>
-    public sealed class InMemoryEventBusSubscriptionsManager : IEventBusSubscriptionsManager<SubscriptionInfo>
+    public class InMemoryEventBusSubscriptionsManager : IEventBusSubscriptionsManager<SubscriptionInfo>
     {
         private readonly Dictionary<string, List<SubscriptionInfo>> _subscriptions = [];
 
