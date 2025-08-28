@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App.WepApi", "App.WepApi\Ap
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App.CalcWorker", "App.CalcWorker\App.CalcWorker.csproj", "{0729B012-9122-47DA-B0EA-CDADD10D5C4D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.EventBus", "Shared.EventBus\Shared.EventBus.csproj", "{9BDD951B-3B3B-4A28-8BA1-55D946758E85}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{0729B012-9122-47DA-B0EA-CDADD10D5C4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0729B012-9122-47DA-B0EA-CDADD10D5C4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0729B012-9122-47DA-B0EA-CDADD10D5C4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BDD951B-3B3B-4A28-8BA1-55D946758E85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BDD951B-3B3B-4A28-8BA1-55D946758E85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BDD951B-3B3B-4A28-8BA1-55D946758E85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BDD951B-3B3B-4A28-8BA1-55D946758E85}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
