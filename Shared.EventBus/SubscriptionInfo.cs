@@ -3,8 +3,8 @@
     public class SubscriptionInfo : ISubscriptionInfo
     {
 
-        public SubscriptionInfo(Type integrationEventHandlerType) => IntegrationEventHandlerType = integrationEventHandlerType;
+        public SubscriptionInfo(Type integrationEventHandlerType) => EventHandlerType = integrationEventHandlerType;
 
-        public Type IntegrationEventHandlerType { get; private init; }
+        public Type EventHandlerType { get; private init; }
     }
 }

@@ -8,6 +8,6 @@ namespace Shared.EventBus
 {
     public interface ISubscriptionInfo
     {
-        Type IntegrationEventHandlerType { get; }
+        Type EventHandlerType { get; }
     }
 }
