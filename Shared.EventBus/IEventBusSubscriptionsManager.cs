@@ -20,11 +20,11 @@ namespace Shared.EventBus
         /// <summary>
         /// Occurs when the manager does not contain any handlers for the corresponding event name.
         /// </summary>
-        event EventHandler<string>? OnEventRemoved;
+        event EventHandler<EventRemovedEventArgs>? OnEventRemoved;
 
         /// <summary>
         /// Adds a new event subscription with the specified event handler.
-        /// </summary>
+        /// </summary>        
         /// <typeparam name="E">Type of the event.</typeparam>
         /// <typeparam name="H">Type of the event handler.</typeparam>
         void AddSubscription<E, H>()
@@ -32,18 +32,18 @@ namespace Shared.EventBus
             where H : IIntegrationEventHandler<E>;
 
         /// <summary>
-        /// Gets the event key.
+        /// Gets the event type by the specified type name.
         /// </summary>
-        /// <typeparam name="E">Type of the event.</typeparam>
-        /// <returns>Event key as string value.</returns>
-        string GetEventKey<E>();
+        /// <param name="eventTypeName">The name of the type to get.</param>
+        /// <returns>Type or null.</returns>
+        Type? GetEventTypeByName(string eventTypeName);
 
         /// <summary>
-        /// Gets a collection of event handlers for the specified event type.
+        /// Gets the event type using provided event key.
         /// </summary>
-        /// <typeparam name="E">Type of the event.</typeparam>
+        /// <param name="eventType">Type of the event.</param>
         /// <returns>Collection with handler types or null.</returns>
-        IEnumerable<I>? GetSubscriptions<E>() where E : IntegrationEvent;
+        IEnumerable<I>? GetSubscriptions(Type eventType);
 
         /// <summary>
         /// Removes the subscription for the given event and handler.
@@ -53,5 +53,24 @@ namespace Shared.EventBus
         void RemoveSubscription<E, H>()
             where E : IntegrationEvent
             where H : IIntegrationEventHandler<E>;
+
+        /// <summary>
+        /// Determines whether a subscription to the given event name exists.
+        /// </summary>
+        /// <param name="eventType">The event type to check.</param>
+        /// <returns>True - contains subscriptions for event name, False - otherwise.</returns>
+        bool Contains(Type eventType);
+
+        /// <summary>
+        /// Determines whether a subscription to the given event name exists.
+        /// </summary>
+        /// <typeparam name="E">The event type to check.</typeparam>
+        /// <returns>True - contains subscriptions for event name, False - otherwise.</returns>
+        bool Contains<E>() where E : IntegrationEvent;
+
+        /// <summary>
+        /// Removes all subscriptions.
+        /// </summary>
+        void Clear();
     }
 }
