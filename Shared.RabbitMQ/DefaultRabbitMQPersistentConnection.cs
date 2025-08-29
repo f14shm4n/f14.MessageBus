@@ -1,11 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Shared.RabbitMQ
 {
@@ -15,7 +10,6 @@ namespace Shared.RabbitMQ
         private readonly ConnectionFactory _connectionFactory;
         private readonly SemaphoreSlim _connLock = new(1, 1);
         private IConnection? _connection;
-        private bool _disposed = false;
 
         public DefaultRabbitMQPersistentConnection(
             ILogger<DefaultRabbitMQPersistentConnection> logger,
@@ -25,7 +19,7 @@ namespace Shared.RabbitMQ
             _connectionFactory = new ConnectionFactory() { HostName = options.ConnectionString };
         }
 
-        public bool IsConnected => _connection != null && _connection.IsOpen && !_disposed;
+        public bool IsConnected => _connection != null && _connection.IsOpen;
 
         public Task<IChannel> CreateChannelAsync()
         {
@@ -38,7 +32,10 @@ namespace Shared.RabbitMQ
 
         public async ValueTask<bool> TryConnectAsync()
         {
-            if (IsConnected) return true;
+            if (IsConnected)
+            {
+                return true;
+            }
 
             await _connLock.WaitAsync();
             try
@@ -69,8 +66,6 @@ namespace Shared.RabbitMQ
 
         private async Task Connection_ConnectionBlockedAsync(object sender, ConnectionBlockedEventArgs @event)
         {
-            if (_disposed) return;
-
             _logger.LogWarning("RabbitMQ connection blocked. Reconnecting...");
 
             await TryConnectAsync();
@@ -78,8 +73,6 @@ namespace Shared.RabbitMQ
 
         private async Task Connection_ConnectionShutdownAsync(object sender, ShutdownEventArgs @event)
         {
-            if (_disposed) return;
-
             _logger.LogWarning("RabbitMQ connection shutdown. Reconnecting...");
 
             await TryConnectAsync();
@@ -87,8 +80,6 @@ namespace Shared.RabbitMQ
 
         private async Task Connection_CallbackExceptionAsync(object sender, CallbackExceptionEventArgs @event)
         {
-            if (_disposed) return;
-
             _logger.LogWarning("RabbitMQ connection threw an exception. Reconnecting...");
 
             await TryConnectAsync();
@@ -98,24 +89,41 @@ namespace Shared.RabbitMQ
 
         #region IDisposable 
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         public async ValueTask DisposeAsync()
         {
-            if (_disposed) return;
+            await DisposeAsyncCore();
 
-            _disposed = true;
+            Dispose(false);
+            GC.SuppressFinalize(this);
+        }
 
-            try
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
             {
-                if (_connection != null)
+                if (_connection is IDisposable disposable)
                 {
-                    await _connection.CloseAsync();
-                    await _connection.DisposeAsync();
+                    disposable.Dispose();
+                    _connection = null;
                 }
+                _connLock.Dispose();
             }
-            catch (Exception ex)
+        }
+
+        private async Task DisposeAsyncCore()
+        {
+            if (_connection is not null)
             {
-                _logger.LogError(ex, "Failed to dispose RabbitMQ connection.");
+                await _connection.DisposeAsync();
+                _connection = null;
             }
+            _connLock.Dispose();
         }
 
         #endregion

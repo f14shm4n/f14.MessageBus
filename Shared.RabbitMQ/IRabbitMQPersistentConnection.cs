@@ -2,7 +2,7 @@
 
 namespace Shared.RabbitMQ
 {
-    internal interface IRabbitMQPersistentConnection : IAsyncDisposable
+    internal interface IRabbitMQPersistentConnection : IAsyncDisposable, IDisposable
     {
         bool IsConnected { get; }
         ValueTask<bool> TryConnectAsync();
