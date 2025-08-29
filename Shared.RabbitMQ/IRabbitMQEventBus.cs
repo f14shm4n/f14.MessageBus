@@ -2,7 +2,7 @@
 
 namespace Shared.RabbitMQ
 {
-    public interface IRabbitMQEventBus : IEventBus
+    public interface IRabbitMQEventBus : IEventBusPublisher, IEventBusReceiver
     {
 
     }

@@ -1,14 +1,12 @@
 ﻿namespace Shared.EventBus
 {
-    public interface IEventBus
+    public interface IEventBusReceiver
     {
-        void Publish(IntegrationEvent @event);
-
-        void Subscribe<T, TH>()
+        Task SubscribeAsync<T, TH>()
             where T : IntegrationEvent
             where TH : IIntegrationEventHandler<T>;
 
-        void Unsubscribe<T, TH>()
+        Task UnsubscribeAsync<T, TH>()
             where T : IntegrationEvent
             where TH : IIntegrationEventHandler<T>;
     }
