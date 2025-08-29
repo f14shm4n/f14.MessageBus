@@ -9,5 +9,6 @@ namespace Shared.RabbitMQ
     internal class RabbitMQOptions
     {
         public string ConnectionString { get; set; } = string.Empty;
+        public RabbitMQExchangeInfo? CalculatorExchange { get; set; }
     }
 }
