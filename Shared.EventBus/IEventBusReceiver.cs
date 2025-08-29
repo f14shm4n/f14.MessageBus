@@ -2,12 +2,12 @@
 {
     public interface IEventBusReceiver
     {
-        Task SubscribeAsync<T, TH>()
-            where T : IntegrationEvent
-            where TH : IIntegrationEventHandler<T>;
+        Task SubscribeAsync<E, H>()
+            where E : IntegrationEvent
+            where H : IIntegrationEventHandler<E>;
 
-        Task UnsubscribeAsync<T, TH>()
-            where T : IntegrationEvent
-            where TH : IIntegrationEventHandler<T>;
+        Task UnsubscribeAsync<E, H>()
+            where E : IntegrationEvent
+            where H : IIntegrationEventHandler<E>;
     }
 }
