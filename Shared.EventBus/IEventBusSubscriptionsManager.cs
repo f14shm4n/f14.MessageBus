@@ -9,8 +9,8 @@ namespace Shared.EventBus
     /// <summary>
     /// The event bus subscription manager stores and maps event names and their handlers.
     /// </summary>
-    /// <typeparam name="I">Type of the specific subscription info.</typeparam>
-    public interface IEventBusSubscriptionsManager<I> where I : ISubscriptionInfo
+    /// <typeparam name="T">Type of the specific subscription info.</typeparam>
+    public interface IEventBusSubscriptionsManager<T> where T : ISubscriptionInfo
     {
         /// <summary>
         /// Determines whether the manager contains any subscriptions.
@@ -43,7 +43,7 @@ namespace Shared.EventBus
         /// </summary>
         /// <param name="eventType">Type of the event.</param>
         /// <returns>Collection with handler types or null.</returns>
-        IEnumerable<I>? GetSubscriptions(Type eventType);
+        IEnumerable<T>? GetSubscriptions(Type eventType);
 
         /// <summary>
         /// Removes the subscription for the given event and handler.
@@ -53,20 +53,6 @@ namespace Shared.EventBus
         void RemoveSubscription<E, H>()
             where E : IntegrationEvent
             where H : IIntegrationEventHandler<E>;
-
-        /// <summary>
-        /// Determines whether a subscription to the given event name exists.
-        /// </summary>
-        /// <param name="eventType">The event type to check.</param>
-        /// <returns>True - contains subscriptions for event name, False - otherwise.</returns>
-        bool Contains(Type eventType);
-
-        /// <summary>
-        /// Determines whether a subscription to the given event name exists.
-        /// </summary>
-        /// <typeparam name="E">The event type to check.</typeparam>
-        /// <returns>True - contains subscriptions for event name, False - otherwise.</returns>
-        bool Contains<E>() where E : IntegrationEvent;
 
         /// <summary>
         /// Removes all subscriptions.

@@ -10,10 +10,10 @@ namespace Shared.EventBus
     /// In memory implementation of the <see cref="IEventBusSubscriptionsManager{I}"/>.
     /// <inheritdoc cref="IEventBusSubscriptionsManager{I}"/>
     /// </summary>
-    public abstract class InMemoryEventBusSubscriptionsManager<I> : IEventBusSubscriptionsManager<I>
-        where I : ISubscriptionInfo
+    public abstract class InMemoryEventBusSubscriptionsManager<T> : IEventBusSubscriptionsManager<T>
+        where T : ISubscriptionInfo
     {
-        private readonly Dictionary<Type, List<I>> _subscriptions = [];
+        private readonly Dictionary<Type, List<T>> _subscriptions = [];
 
         public bool IsEmpty => _subscriptions.Count == 0;
 
@@ -24,7 +24,7 @@ namespace Shared.EventBus
             where H : IIntegrationEventHandler<E>
         {
             var eventType = typeof(E);
-            if (!_subscriptions.TryGetValue(eventType, out List<I>? subList))
+            if (!_subscriptions.TryGetValue(eventType, out List<T>? subList))
             {
                 subList = [];
                 _subscriptions.Add(eventType, subList);
@@ -43,22 +43,12 @@ namespace Shared.EventBus
             _subscriptions.Clear();
         }
 
-        public bool Contains(Type eventType)
-        {
-            return _subscriptions.ContainsKey(eventType);
-        }
-
-        public bool Contains<E>() where E : IntegrationEvent
-        {
-            return Contains(typeof(E));
-        }
-
         public Type? GetEventTypeByName(string eventTypeName)
         {
             return _subscriptions.Keys.FirstOrDefault(k => k.Name == eventTypeName);
         }
 
-        public IEnumerable<I>? GetSubscriptions(Type eventType)
+        public IEnumerable<T>? GetSubscriptions(Type eventType)
         {
             _subscriptions.TryGetValue(eventType, out var list);
             return list;
@@ -69,7 +59,7 @@ namespace Shared.EventBus
             where H : IIntegrationEventHandler<E>
         {
             var eventType = typeof(E);
-            if (!_subscriptions.TryGetValue(eventType, out List<I>? subList))
+            if (!_subscriptions.TryGetValue(eventType, out List<T>? subList))
             {
                 subList = [];
                 _subscriptions.Add(eventType, subList);
@@ -77,17 +67,19 @@ namespace Shared.EventBus
 
             var hType = typeof(H);
             var sub = subList.Find(s => s.EventHandlerType == hType);
-            if (sub != null)
+            if (sub == null)
             {
-                subList.Remove(sub);
-                if (subList.Count == 0)
-                {
-                    _subscriptions.Remove(eventType);
-                    OnEventRemoved?.Invoke(this, new EventRemovedEventArgs(eventType));
-                }
+                return;
+            }
+
+            subList.Remove(sub);
+            if (subList.Count == 0)
+            {
+                _subscriptions.Remove(eventType);
+                OnEventRemoved?.Invoke(this, new EventRemovedEventArgs(eventType));
             }
         }
 
-        protected abstract I CreateSubscriptionInfo(Type eventType, Type eventHandlerType);
+        protected abstract T CreateSubscriptionInfo(Type eventType, Type eventHandlerType);
     }
 }
