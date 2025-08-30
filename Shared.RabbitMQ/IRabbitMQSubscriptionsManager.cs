@@ -1,13 +1,8 @@
 ﻿using Shared.EventBus;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Shared.RabbitMQ
 {
-    internal interface IRabbitMQSubscriptionsManager : IEventBusSubscriptionsManager<SubscriptionInfo>
+    public interface IRabbitMQSubscriptionsManager<T> : IEventBusSubscriptionsManager<T> where T : ISubscriptionInfo
     {
     }
 }

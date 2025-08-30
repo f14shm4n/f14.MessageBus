@@ -3,7 +3,7 @@ using RabbitMQ.Client;
 
 namespace Shared.RabbitMQ
 {
-    internal abstract class RabbitMQPersistentChannel : IAsyncDisposable, IDisposable
+    public abstract class RabbitMQPersistentChannel : IAsyncDisposable, IDisposable
     {
         private readonly ILogger<RabbitMQPersistentChannel> _logger;
         private readonly IRabbitMQPersistentConnection _persistentConnection;

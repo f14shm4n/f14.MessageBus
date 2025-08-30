@@ -4,16 +4,14 @@ using RabbitMQ.Client.Events;
 
 namespace Shared.RabbitMQ
 {
-    internal sealed class DefaultRabbitMQPersistentConnection : IRabbitMQPersistentConnection
+    public class RabbitMQPersistentConnection : IRabbitMQPersistentConnection
     {
-        private readonly ILogger<DefaultRabbitMQPersistentConnection> _logger;
+        private readonly ILogger<RabbitMQPersistentConnection> _logger;
         private readonly ConnectionFactory _connectionFactory;
         private readonly SemaphoreSlim _connLock = new(1, 1);
         private IConnection? _connection;
 
-        public DefaultRabbitMQPersistentConnection(
-            ILogger<DefaultRabbitMQPersistentConnection> logger,
-            RabbitMQOptions options)
+        public RabbitMQPersistentConnection(ILogger<RabbitMQPersistentConnection> logger, RabbitMQOptions options)
         {
             _logger = logger;
             _connectionFactory = new ConnectionFactory() { HostName = options.ConnectionString };
@@ -41,20 +39,18 @@ namespace Shared.RabbitMQ
             try
             {
                 _connection = await _connectionFactory.CreateConnectionAsync();
-                if (IsConnected)
-                {
-                    _connection.CallbackExceptionAsync += Connection_CallbackExceptionAsync;
-                    _connection.ConnectionShutdownAsync += Connection_ConnectionShutdownAsync;
-                    _connection.ConnectionBlockedAsync += Connection_ConnectionBlockedAsync;
-
-                    _logger.LogInformation("The RabbitMQ client established a new connection to '{HostName}'.", _connection.Endpoint.HostName);
-                    return true;
-                }
-                else
+                if (!IsConnected)
                 {
                     _logger.LogCritical("FATAL: Cannot create and open new RabbitMQ connection.");
                     return false;
                 }
+
+                _connection.CallbackExceptionAsync += Connection_CallbackExceptionAsync;
+                _connection.ConnectionShutdownAsync += Connection_ConnectionShutdownAsync;
+                _connection.ConnectionBlockedAsync += Connection_ConnectionBlockedAsync;
+
+                _logger.LogInformation("The RabbitMQ client established a new connection to '{HostName}'.", _connection.Endpoint.HostName);
+                return true;
             }
             finally
             {
