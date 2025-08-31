@@ -3,7 +3,7 @@ using Shared.EventBus;
 
 namespace Shared.RabbitMQ.App
 {
-    internal sealed class RabbitMQEventBus : IRabbitMQEventBus
+    internal sealed class RabbitMQEventBus : IEventBusPublisher, IEventBusReceiver
     {
         private readonly ILogger<RabbitMQEventBus> _logger;
         private readonly IRabbitMQSubscriptionsManager<SubscriptionInfo> _subscriptionsManager;

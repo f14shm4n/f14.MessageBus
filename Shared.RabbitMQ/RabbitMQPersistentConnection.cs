@@ -1,6 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.Retry;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using RabbitMQ.Client.Exceptions;
+using System.Net.Sockets;
 
 namespace Shared.RabbitMQ
 {
@@ -9,11 +13,13 @@ namespace Shared.RabbitMQ
         private readonly ILogger<RabbitMQPersistentConnection> _logger;
         private readonly ConnectionFactory _connectionFactory;
         private readonly SemaphoreSlim _connLock = new(1, 1);
+        private readonly RabbitMQRetryPolicyOptions _retryPolicy;
         private IConnection? _connection;
 
         public RabbitMQPersistentConnection(ILogger<RabbitMQPersistentConnection> logger, RabbitMQOptions options)
         {
             _logger = logger;
+            _retryPolicy = options.ConnectionRetryPolicy;
             _connectionFactory = new ConnectionFactory() { HostName = options.ConnectionString };
         }
 
@@ -38,14 +44,26 @@ namespace Shared.RabbitMQ
             await _connLock.WaitAsync();
             try
             {
-                _connection = await _connectionFactory.CreateConnectionAsync();
+                var polly = RetryPolicy
+                    .Handle<SocketException>()
+                    .Or<BrokerUnreachableException>()
+                    .WaitAndRetryAsync(_retryPolicy.RetryCount, _retryPolicy.CalculateDelay, (ex, time) =>
+                    {
+                        _logger.LogWarning(ex, "RabbitMQ client failed to establish connection {Time} sec. ({Error})", $"{time.TotalSeconds:n0}", ex.Message);
+                    });
+
+                await polly.ExecuteAsync(async () =>
+                {
+                    _connection = await _connectionFactory.CreateConnectionAsync();
+                });
+
                 if (!IsConnected)
                 {
                     _logger.LogCritical("FATAL: Cannot create and open new RabbitMQ connection.");
                     return false;
                 }
 
-                _connection.CallbackExceptionAsync += Connection_CallbackExceptionAsync;
+                _connection!.CallbackExceptionAsync += Connection_CallbackExceptionAsync;
                 _connection.ConnectionShutdownAsync += Connection_ConnectionShutdownAsync;
                 _connection.ConnectionBlockedAsync += Connection_ConnectionBlockedAsync;
 

@@ -20,7 +20,7 @@ namespace Shared.RabbitMQ.App
             ILogger<RabbitMQPersistentConsumerChannel> logger,
             IRabbitMQPersistentConnection persistentConnection,
             RabbitMQAppOptions options)
-            : base(logger, persistentConnection)
+            : base(logger, persistentConnection, options)
         {
             _scopeFactory = scopeFactory;
             _subscriptionsManager = subscriptionsManager;

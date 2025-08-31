@@ -12,7 +12,8 @@ namespace Shared.RabbitMQ
 
         public RabbitMQPersistentChannel(
             ILogger<RabbitMQPersistentChannel> logger,
-            IRabbitMQPersistentConnection persistentConnection)
+            IRabbitMQPersistentConnection persistentConnection,
+            RabbitMQOptions options)
         {
             _logger = logger;
             _persistentConnection = persistentConnection;
