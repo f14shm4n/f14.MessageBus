@@ -8,7 +8,7 @@ using System.Net.Sockets;
 
 namespace Shared.RabbitMQ
 {
-    public class RabbitMQPersistentConnection : IRabbitMQPersistentConnection
+    public abstract class RabbitMQPersistentConnection : IRabbitMQPersistentConnection
     {
         private readonly ILogger<RabbitMQPersistentConnection> _logger;
         private readonly ConnectionFactory _connectionFactory;
@@ -20,7 +20,9 @@ namespace Shared.RabbitMQ
         {
             _logger = logger;
             _retryPolicy = options.ConnectionRetryPolicy;
-            _connectionFactory = new ConnectionFactory() { HostName = options.ConnectionString };
+            _connectionFactory = new ConnectionFactory();
+
+            ConfigureConnectionFactory(_connectionFactory, options);
         }
 
         public bool IsConnected => _connection != null && _connection.IsOpen;
@@ -75,6 +77,12 @@ namespace Shared.RabbitMQ
                 _connLock.Release();
             }
         }
+
+        #region Abstract
+
+        protected abstract void ConfigureConnectionFactory(ConnectionFactory connectionFactory, RabbitMQOptions options);
+
+        #endregion
 
         #region EventHandlers
 
