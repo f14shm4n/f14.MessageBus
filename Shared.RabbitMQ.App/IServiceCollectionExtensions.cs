@@ -14,7 +14,8 @@ namespace Shared.RabbitMQ.App
                 .AddSingleton<IRabbitMQSubscriptionsManager<SubscriptionInfo>, DefaultInMemoryRabbitMQSubscriptionsManager>()
                 .AddSingleton<RabbitMQPersistentPublishChannel>()
                 .AddSingleton<RabbitMQPersistentConsumerChannel>()
-                .AddSingleton<IRabbitMQEventBus, RabbitMQEventBus>();
+                .AddSingleton<IEventBusPublisher, RabbitMQEventBus>()
+                .AddSingleton<IEventBusReceiver, RabbitMQEventBus>();
             return services;
         }
     }
