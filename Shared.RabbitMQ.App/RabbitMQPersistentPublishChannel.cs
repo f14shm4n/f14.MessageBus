@@ -24,6 +24,7 @@ namespace Shared.RabbitMQ.App
             _retryPolicyOptions = options.PublishRetryPolicy;
             _calcExchangeInfo = options.CalculatorExchange ?? throw new InvalidOperationException("CalculatorExchange info required.");
 
+            // Can be refactord as IBasicPropertiesProvider and injected
             _basicProperties = new BasicProperties
             {
                 DeliveryMode = DeliveryModes.Persistent

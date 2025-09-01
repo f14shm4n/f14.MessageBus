@@ -11,12 +11,12 @@ namespace Shared.RabbitMQ.App
         private readonly RabbitMQPersistentConsumerChannel _consumerChannel;
 
         public RabbitMQEventBus(
-            ILoggerFactory loggerFactory,
+            ILogger<RabbitMQEventBus> logger,
             IRabbitMQSubscriptionsManager<SubscriptionInfo> subscriptionsManager,
             RabbitMQPersistentPublishChannel publishChannel,
             RabbitMQPersistentConsumerChannel consumerChannel)
         {
-            _logger = loggerFactory.CreateLogger<RabbitMQEventBus>();
+            _logger = logger;
             _subscriptionsManager = subscriptionsManager;
             _publishChannel = publishChannel;
             _consumerChannel = consumerChannel;
