@@ -3,6 +3,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using RabbitMQ.Client;
+using Shared.RabbitMQ;
 using Shared.RabbitMQ.App;
 using System;
 using System.Collections.Generic;
@@ -35,14 +36,16 @@ namespace Tests.RabbitMQ
 
         [Fact]
         [Trait("DockerPlatform", "Linux")]
-        public async Task RabbitMQAppPersistentConnection_IsConnected()
-        {   
+        public async Task RabbitMQPersistentConnection_IsConnected()
+        {
             var opts = CreateOptions();
-            var con = new RabbitMQAppPersistentConnection(Mock.Of<ILogger<RabbitMQAppPersistentConnection>>(), opts);
-            var r = await con.TryConnectAsync();
+            await using (var con = new RabbitMQPersistentConnection(Mock.Of<ILogger<RabbitMQPersistentConnection>>(), CreateConnectionFactoryProvider(), opts))
+            {
+                var r = await con.TryConnectAsync();
 
-            r.Should().BeTrue();
-            con.IsConnected.Should().BeTrue();
+                r.Should().BeTrue();
+                con.IsConnected.Should().BeTrue();
+            }
         }
 
         #endregion
@@ -66,6 +69,16 @@ namespace Tests.RabbitMQ
                     RetryDelayInMilliseconds = 500
                 }
             };
+        }
+
+        private IConnectionFactoryProvider CreateConnectionFactoryProvider()
+        {
+            var providerMock = new Mock<IConnectionFactoryProvider>();
+            providerMock.Setup(p => p.GetConnectionFactory()).Returns(new ConnectionFactory()
+            {
+                Uri = new Uri(_rabbitMqContainer.GetConnectionString())
+            });
+            return providerMock.Object;
         }
 
         #endregion
