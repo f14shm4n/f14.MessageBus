@@ -1,25 +1,78 @@
 ﻿using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
+using Shared.EventBus;
 
 namespace Shared.RabbitMQ
 {
-    public abstract class RabbitMQPersistentChannel : IAsyncDisposable, IDisposable
+    public abstract class RabbitMQReceiverBase : IEventBusReceiver, IAsyncDisposable, IDisposable
     {
-        private readonly ILogger<RabbitMQPersistentChannel> _logger;
+        private readonly IEventBusSubscriptionsManager _subscriptionsManager;
         private readonly IRabbitMQPersistentConnection _persistentConnection;
+        private readonly ILogger<RabbitMQReceiverBase> _logger;
+
         private readonly SemaphoreSlim _channelLock = new(1, 1);
         private IChannel? _channel;
 
-        public RabbitMQPersistentChannel(
-            ILogger<RabbitMQPersistentChannel> logger,
+        public RabbitMQReceiverBase(
+            IEventBusSubscriptionsManager subscriptionsManager,
             IRabbitMQPersistentConnection persistentConnection,
-            RabbitMQOptions options)
+            ILogger<RabbitMQReceiverBase> logger)
         {
-            _logger = logger;
+            _subscriptionsManager = subscriptionsManager;
             _persistentConnection = persistentConnection;
+            _logger = logger;
+
+            _subscriptionsManager.OnEventRemoved += SubscriptionsManager_OnEventRemoved;
         }
 
-        public async ValueTask<bool> TryOpenChannelAsync()
+        #region Public
+
+        public async Task SubscribeAsync<E, H>()
+            where E : IntegrationEvent
+            where H : IIntegrationEventHandler<E>
+        {
+            if (!IsOpen)
+            {
+                await TryOpenChannelAsync();
+            }
+            await BindQueueAsync<E>();
+
+            _logger.LogInformation("Subscribing to event {E} with {H}", typeof(E), typeof(H).Name);
+
+            _subscriptionsManager.AddSubscription<E, H>();
+        }
+
+        public Task UnsubscribeAsync<E, H>()
+            where E : IntegrationEvent
+            where H : IIntegrationEventHandler<E>
+        {
+            _logger.LogInformation("Unsubscribing from event {E}", typeof(E).Name);
+
+            _subscriptionsManager.RemoveSubscription<E, H>();
+            return Task.CompletedTask;
+        }
+
+        #endregion
+
+        #region Protected
+
+        protected IChannel? Channel => _channel;
+
+        protected ILogger Logger => _logger;
+
+        protected bool IsOpen => _channel is not null && _channel.IsOpen;
+
+        protected abstract Task BindQueueAsync<E>() where E : IntegrationEvent;
+
+        protected abstract Task UnbindQueueAsync(Type eventType);
+
+        protected abstract Task ConfigureChannelAsync(IChannel channel);
+
+        #endregion
+
+        #region Private        
+
+        private async ValueTask<bool> TryOpenChannelAsync()
         {
             if (IsOpen)
             {
@@ -55,25 +108,18 @@ namespace Shared.RabbitMQ
             return false;
         }
 
-        #region Properties
-
-        public bool IsOpen => _channel is not null && _channel.IsOpen;
-
-        protected IChannel? Channel => _channel;
-
-        protected IRabbitMQPersistentConnection PersistentConnection => _persistentConnection;
-
-        protected ILogger Logger => _logger;
-
         #endregion
 
-        #region Abstract
+        #region EventHandler
 
-        protected abstract Task ConfigureChannelAsync(IChannel channel);
-
-        #endregion
-
-        #region EventHandlers
+        private async void SubscriptionsManager_OnEventRemoved(object? sender, EventRemovedEventArgs args)
+        {
+            if (!IsOpen)
+            {
+                await TryOpenChannelAsync();
+            }
+            await UnbindQueueAsync(args.EventType);
+        }
 
         private async Task Channel_CallbackExceptionAsync(object sender, global::RabbitMQ.Client.Events.CallbackExceptionEventArgs @event)
         {
@@ -125,6 +171,15 @@ namespace Shared.RabbitMQ
                 await _channel.DisposeAsync();
             }
             _channelLock.Dispose();
+        }
+
+        #endregion
+
+        #region Static
+
+        protected static string GetEventTypeName<E>() where E : IntegrationEvent
+        {
+            return typeof(E).Name;
         }
 
         #endregion

@@ -4,6 +4,7 @@ using Polly.Retry;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
+using Shared.Commons.Options.Polly;
 using System.Net.Sockets;
 
 namespace Shared.RabbitMQ
@@ -13,7 +14,7 @@ namespace Shared.RabbitMQ
         private readonly ILogger<RabbitMQPersistentConnection> _logger;
         private readonly IConnectionFactory _connectionFactory;
         private readonly SemaphoreSlim _connLock = new(1, 1);
-        private readonly RabbitMQRetryPolicyOptions _retryPolicy;
+        private readonly RetryPolicyOptions _retryPolicy;
         private IConnection? _connection;
 
         public RabbitMQPersistentConnection(
