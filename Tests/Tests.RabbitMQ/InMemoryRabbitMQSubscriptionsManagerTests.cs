@@ -4,14 +4,14 @@ using Tests.RabbitMQ.Events;
 
 namespace Tests.RabbitMQ
 {
-    public class DefaultInMemoryRabbitMQSubscriptionsManagerTests
+    public class InMemoryRabbitMQSubscriptionsManagerTests
     {
         #region AddSubscription
 
         [Fact]
         public void AddSubscription_HaveCount_1()
         {
-            var manager = new DefaultInMemoryRabbitMQSubscriptionsManager();
+            var manager = new InMemoryRabbitMQSubscriptionsManager();
             manager.AddSubscription<Int32IntegrationEvent, Int32IntegrationEventHandler>();
 
             manager.GetSubscriptions(typeof(Int32IntegrationEvent))
@@ -22,7 +22,7 @@ namespace Tests.RabbitMQ
         [Fact]
         public void AddSubscription_SingleEventType_HaveCount_2()
         {
-            var manager = new DefaultInMemoryRabbitMQSubscriptionsManager();
+            var manager = new InMemoryRabbitMQSubscriptionsManager();
             manager.AddSubscription<Int32IntegrationEvent, Int32IntegrationEventHandler>();
             manager.AddSubscription<Int32IntegrationEvent, Int32CustomizedIntegrationEventHandler>();
 
@@ -34,7 +34,7 @@ namespace Tests.RabbitMQ
         [Fact]
         public void AddSubscription_VariouseEventType_HaveCount_3()
         {
-            var manager = new DefaultInMemoryRabbitMQSubscriptionsManager();
+            var manager = new InMemoryRabbitMQSubscriptionsManager();
             manager.AddSubscription<Int32IntegrationEvent, Int32IntegrationEventHandler>();
             manager.AddSubscription<Int32IntegrationEvent, Int32CustomizedIntegrationEventHandler>();
             manager.AddSubscription<StringIntegrationEvent, StringIntegrationEventHandler>();
@@ -49,7 +49,7 @@ namespace Tests.RabbitMQ
         [Fact]
         public void AddSubscription_ShouldNotThrow()
         {
-            var manager = new DefaultInMemoryRabbitMQSubscriptionsManager();
+            var manager = new InMemoryRabbitMQSubscriptionsManager();
             FluentActions.Invoking(() =>
             {
                 manager.AddSubscription<Int32IntegrationEvent, Int32IntegrationEventHandler>();
@@ -62,7 +62,7 @@ namespace Tests.RabbitMQ
         [Fact]
         public void AddSubscription_ShouldThrowInvalidOperationException()
         {
-            var manager = new DefaultInMemoryRabbitMQSubscriptionsManager();
+            var manager = new InMemoryRabbitMQSubscriptionsManager();
             FluentActions.Invoking(() =>
             {
                 manager.AddSubscription<Int32IntegrationEvent, Int32IntegrationEventHandler>();
@@ -79,7 +79,7 @@ namespace Tests.RabbitMQ
         [Fact]
         public void RemoveSubscription_With_1_Handler()
         {
-            var manager = new DefaultInMemoryRabbitMQSubscriptionsManager();
+            var manager = new InMemoryRabbitMQSubscriptionsManager();
             manager.AddSubscription<Int32IntegrationEvent, Int32IntegrationEventHandler>();
 
             manager.GetSubscriptions(typeof(Int32IntegrationEvent))
@@ -96,7 +96,7 @@ namespace Tests.RabbitMQ
 
                 eventMonitor
                     .Should()
-                    .Raise(nameof(DefaultInMemoryRabbitMQSubscriptionsManager.OnEventRemoved));
+                    .Raise(nameof(InMemoryRabbitMQSubscriptionsManager.OnEventRemoved));
             }
         }
 
@@ -104,7 +104,7 @@ namespace Tests.RabbitMQ
         [Fact]
         public void RemoveSubscription_SameEventType_With_2_Handler()
         {
-            var manager = new DefaultInMemoryRabbitMQSubscriptionsManager();
+            var manager = new InMemoryRabbitMQSubscriptionsManager();
             manager.AddSubscription<Int32IntegrationEvent, Int32IntegrationEventHandler>();
             manager.AddSubscription<Int32IntegrationEvent, Int32CustomizedIntegrationEventHandler>();
 
@@ -122,14 +122,14 @@ namespace Tests.RabbitMQ
 
                 eventMonitor
                     .Should()
-                    .NotRaise(nameof(DefaultInMemoryRabbitMQSubscriptionsManager.OnEventRemoved));
+                    .NotRaise(nameof(InMemoryRabbitMQSubscriptionsManager.OnEventRemoved));
             }
         }
 
         [Fact]
         public void RemoveSubscription_With_3_Handler()
         {
-            var manager = new DefaultInMemoryRabbitMQSubscriptionsManager();
+            var manager = new InMemoryRabbitMQSubscriptionsManager();
             manager.AddSubscription<Int32IntegrationEvent, Int32IntegrationEventHandler>();
             manager.AddSubscription<Int32IntegrationEvent, Int32CustomizedIntegrationEventHandler>();
             manager.AddSubscription<StringIntegrationEvent, StringIntegrationEventHandler>();
@@ -156,7 +156,7 @@ namespace Tests.RabbitMQ
 
                 eventMonitor
                     .Should()
-                    .Raise(nameof(DefaultInMemoryRabbitMQSubscriptionsManager.OnEventRemoved));
+                    .Raise(nameof(InMemoryRabbitMQSubscriptionsManager.OnEventRemoved));
             }
         }
 
@@ -167,7 +167,7 @@ namespace Tests.RabbitMQ
         [Fact]
         public void GetEventTypeByName_Empty()
         {
-            var manager = new DefaultInMemoryRabbitMQSubscriptionsManager();
+            var manager = new InMemoryRabbitMQSubscriptionsManager();
 
             manager.GetEventTypeByName(typeof(Int32IntegrationEvent).Name)
                 .Should()
@@ -177,7 +177,7 @@ namespace Tests.RabbitMQ
         [Fact]
         public void GetEventTypeByName()
         {
-            var manager = new DefaultInMemoryRabbitMQSubscriptionsManager();
+            var manager = new InMemoryRabbitMQSubscriptionsManager();
             manager.AddSubscription<Int32IntegrationEvent, Int32IntegrationEventHandler>();
             manager.AddSubscription<Int32IntegrationEvent, Int32CustomizedIntegrationEventHandler>();
             manager.AddSubscription<StringIntegrationEvent, StringIntegrationEventHandler>();
