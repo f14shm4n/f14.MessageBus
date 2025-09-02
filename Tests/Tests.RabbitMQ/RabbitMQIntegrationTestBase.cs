@@ -86,11 +86,11 @@ namespace Tests.RabbitMQ
         protected RabbitMQPersistentConsumerChannel CreateConsumerChannel(
             IRabbitMQPersistentConnection connection,
             IServiceScopeFactory? scopeFactory = null,
-            IEventBusSubscriptionsManager<SubscriptionInfo>? subscriptionsManager = null,
+            IEventBusSubscriptionsManager? subscriptionsManager = null,
             RabbitMQAppOptions? options = null)
         {
             scopeFactory ??= Mock.Of<IServiceScopeFactory>();
-            subscriptionsManager ??= new InMemoryRabbitMQSubscriptionsManager();
+            subscriptionsManager ??= new InMemoryEventBusSubscriptionsManager();
             options ??= CreateOptions();
             return new RabbitMQPersistentConsumerChannel(scopeFactory, subscriptionsManager, CreateLogger<RabbitMQPersistentConsumerChannel>(), connection, options);
         }
