@@ -1,8 +1,10 @@
-﻿namespace Shared.RabbitMQ.App
+﻿using Shared.Commons.Options.Polly;
+
+namespace Shared.RabbitMQ.App
 {
     public sealed class RabbitMQAppOptions : RabbitMQOptions
     {
         public RabbitMQExchangeInfo? CalculatorExchange { get; set; }
-        public RabbitMQRetryPolicyOptions PublishRetryPolicy { get; set; } = new RabbitMQRetryPolicyOptions();
+        public RetryPolicyOptions PublishRetryPolicy { get; set; } = new RetryPolicyOptions();
     }
 }

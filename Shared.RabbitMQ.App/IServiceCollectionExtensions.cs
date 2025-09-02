@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using RabbitMQ.Client;
 using Shared.EventBus;
 
 namespace Shared.RabbitMQ.App
@@ -10,13 +11,13 @@ namespace Shared.RabbitMQ.App
         {
             services
                 .Configure<RabbitMQAppOptions>(configuration.GetSection("RabbitMQ"))
+                .AddSingleton<IIntegrationEventProcessor, IntegrationEventProcessor>()
                 .AddSingleton<IConnectionFactoryProvider, UriConnectionFactoryProvider>()
+                .AddSingleton<IBasicPropertiesProvider, SimpleBasicPropertiesProvider>(sp => new SimpleBasicPropertiesProvider(new BasicProperties { DeliveryMode = DeliveryModes.Persistent }))
                 .AddSingleton<IRabbitMQPersistentConnection, RabbitMQPersistentConnection>()
                 .AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>()
-                .AddSingleton<RabbitMQPersistentPublishChannel>()
-                .AddSingleton<RabbitMQPersistentConsumerChannel>()
-                .AddSingleton<IEventBusPublisher, RabbitMQEventBus>()
-                .AddSingleton<IEventBusReceiver, RabbitMQEventBus>();
+                .AddSingleton<IEventBusPublisher, RabbitMQPublisher>()
+                .AddSingleton<IEventBusReceiver, RabbitMQReceiver>();
             return services;
         }
     }
