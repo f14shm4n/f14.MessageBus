@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using RabbitMQ.Client;
+using Shared.Commons.Options.Polly;
 using Shared.EventBus;
 using Shared.RabbitMQ;
 using Shared.RabbitMQ.App;
@@ -48,7 +49,7 @@ namespace Tests.RabbitMQ
                     Type = "direct",
                     Queue = "operations"
                 },
-                ConnectionRetryPolicy = new Shared.RabbitMQ.RabbitMQRetryPolicyOptions
+                ConnectionRetryPolicy = new RetryPolicyOptions
                 {
                     RetryCount = 1,
                     RetryDelayInMilliseconds = 500
@@ -73,26 +74,6 @@ namespace Tests.RabbitMQ
             options ??= CreateOptions();
             connectionFactoryProvider ??= CreateConnectionFactoryProvider();
             return new RabbitMQPersistentConnection(CreateLogger<RabbitMQPersistentConnection>(), connectionFactoryProvider, options);
-        }
-
-        protected RabbitMQPersistentPublishChannel CreatePublishChannel(
-            IRabbitMQPersistentConnection connection,
-            RabbitMQAppOptions? options = null)
-        {
-            options ??= CreateOptions();
-            return new RabbitMQPersistentPublishChannel(CreateLogger<RabbitMQPersistentPublishChannel>(), connection, options);
-        }
-
-        protected RabbitMQPersistentConsumerChannel CreateConsumerChannel(
-            IRabbitMQPersistentConnection connection,
-            IServiceScopeFactory? scopeFactory = null,
-            IEventBusSubscriptionsManager? subscriptionsManager = null,
-            RabbitMQAppOptions? options = null)
-        {
-            scopeFactory ??= Mock.Of<IServiceScopeFactory>();
-            subscriptionsManager ??= new InMemoryEventBusSubscriptionsManager();
-            options ??= CreateOptions();
-            return new RabbitMQPersistentConsumerChannel(scopeFactory, subscriptionsManager, CreateLogger<RabbitMQPersistentConsumerChannel>(), connection, options);
         }
 
         #endregion

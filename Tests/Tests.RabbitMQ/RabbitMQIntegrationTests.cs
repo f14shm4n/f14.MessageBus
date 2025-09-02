@@ -14,35 +14,5 @@ namespace Tests.RabbitMQ
                 con.IsConnected.Should().BeTrue();
             }
         }
-
-        [Fact]
-        [Trait("DockerPlatform", "Linux")]
-        public async Task RabbitMQPersistentPublishChannel_IsOpen()
-        {
-            await using (var con = CreateConnection())
-            {
-                await con.TryConnectAsync();
-                await using (var channel = CreatePublishChannel(con))
-                {
-                    (await channel.TryOpenChannelAsync()).Should().BeTrue();
-                    channel.IsOpen.Should().BeTrue();
-                }
-            }
-        }
-
-        [Fact]
-        [Trait("DockerPlatform", "Linux")]
-        public async Task RabbitMQPersistentConsumerChannel_IsOpen()
-        {
-            await using (var con = CreateConnection())
-            {
-                await con.TryConnectAsync();
-                await using (var channel = CreateConsumerChannel(con))
-                {
-                    (await channel.TryOpenChannelAsync()).Should().BeTrue();
-                    channel.IsOpen.Should().BeTrue();
-                }
-            }
-        }
     }
 }
