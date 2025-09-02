@@ -9,8 +9,7 @@ namespace Shared.EventBus
     /// <summary>
     /// The event bus subscription manager stores and maps event names and their handlers.
     /// </summary>
-    /// <typeparam name="T">Type of the specific subscription info.</typeparam>
-    public interface IEventBusSubscriptionsManager<T> where T : ISubscriptionInfo
+    public interface IEventBusSubscriptionsManager
     {
         /// <summary>
         /// Determines whether the manager contains any subscriptions.
@@ -43,7 +42,7 @@ namespace Shared.EventBus
         /// </summary>
         /// <param name="eventType">Type of the event.</param>
         /// <returns>Collection with handler types or null.</returns>
-        IEnumerable<T>? GetSubscriptions(Type eventType);
+        IEnumerable<SubscriptionInfo>? GetSubscriptions(Type eventType);
 
         /// <summary>
         /// Removes the subscription for the given event and handler.

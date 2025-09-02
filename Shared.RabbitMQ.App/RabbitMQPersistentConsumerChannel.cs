@@ -11,12 +11,12 @@ namespace Shared.RabbitMQ.App
     public sealed class RabbitMQPersistentConsumerChannel : RabbitMQPersistentChannel
     {
         private readonly RabbitMQExchangeInfo _calcExchangeInfo;
-        private readonly IEventBusSubscriptionsManager<SubscriptionInfo> _subscriptionsManager;
+        private readonly IEventBusSubscriptionsManager _subscriptionsManager;
         private readonly IServiceScopeFactory _scopeFactory;
 
         public RabbitMQPersistentConsumerChannel(
             IServiceScopeFactory scopeFactory,
-            IEventBusSubscriptionsManager<SubscriptionInfo> subscriptionsManager,
+            IEventBusSubscriptionsManager subscriptionsManager,
             ILogger<RabbitMQPersistentConsumerChannel> logger,
             IRabbitMQPersistentConnection persistentConnection,
             RabbitMQAppOptions options)

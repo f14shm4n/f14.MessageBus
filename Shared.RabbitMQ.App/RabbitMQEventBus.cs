@@ -6,13 +6,13 @@ namespace Shared.RabbitMQ.App
     internal sealed class RabbitMQEventBus : IEventBusPublisher, IEventBusReceiver
     {
         private readonly ILogger<RabbitMQEventBus> _logger;
-        private readonly IEventBusSubscriptionsManager<SubscriptionInfo> _subscriptionsManager;
+        private readonly IEventBusSubscriptionsManager _subscriptionsManager;
         private readonly RabbitMQPersistentPublishChannel _publishChannel;
         private readonly RabbitMQPersistentConsumerChannel _consumerChannel;
 
         public RabbitMQEventBus(
             ILogger<RabbitMQEventBus> logger,
-            IEventBusSubscriptionsManager<SubscriptionInfo> subscriptionsManager,
+            IEventBusSubscriptionsManager subscriptionsManager,
             RabbitMQPersistentPublishChannel publishChannel,
             RabbitMQPersistentConsumerChannel consumerChannel)
         {
