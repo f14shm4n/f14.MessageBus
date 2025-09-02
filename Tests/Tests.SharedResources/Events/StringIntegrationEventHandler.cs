@@ -1,6 +1,6 @@
 ﻿using Shared.EventBus;
 
-namespace Tests.RabbitMQ.Events
+namespace Tests.SharedResources.Events
 {
     public class StringIntegrationEventHandler : IIntegrationEventHandler<StringIntegrationEvent>
     {
