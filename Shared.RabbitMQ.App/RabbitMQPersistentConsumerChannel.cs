@@ -8,15 +8,15 @@ using System.Text.Json;
 
 namespace Shared.RabbitMQ.App
 {
-    internal sealed class RabbitMQPersistentConsumerChannel : RabbitMQPersistentChannel
+    public sealed class RabbitMQPersistentConsumerChannel : RabbitMQPersistentChannel
     {
         private readonly RabbitMQExchangeInfo _calcExchangeInfo;
-        private readonly IRabbitMQSubscriptionsManager<SubscriptionInfo> _subscriptionsManager;
+        private readonly IEventBusSubscriptionsManager<SubscriptionInfo> _subscriptionsManager;
         private readonly IServiceScopeFactory _scopeFactory;
 
         public RabbitMQPersistentConsumerChannel(
             IServiceScopeFactory scopeFactory,
-            IRabbitMQSubscriptionsManager<SubscriptionInfo> subscriptionsManager,
+            IEventBusSubscriptionsManager<SubscriptionInfo> subscriptionsManager,
             ILogger<RabbitMQPersistentConsumerChannel> logger,
             IRabbitMQPersistentConnection persistentConnection,
             RabbitMQAppOptions options)

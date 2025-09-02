@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace Shared.RabbitMQ.App
 {
-    internal sealed class RabbitMQPersistentPublishChannel : RabbitMQPersistentChannel
+    public sealed class RabbitMQPersistentPublishChannel : RabbitMQPersistentChannel
     {
         private readonly RabbitMQExchangeInfo _calcExchangeInfo;
         private readonly RabbitMQRetryPolicyOptions _retryPolicyOptions;
@@ -33,9 +33,9 @@ namespace Shared.RabbitMQ.App
 
         public async Task PublishAsync(IntegrationEvent @event)
         {
-            if (!IsOpen)
+            if (!await TryOpenChannelAsync())
             {
-                Logger.LogWarning("Cannot publish message to closed channel.");
+                Logger.LogCritical("CRITICAL: Unable to open {Channel} channel.", nameof(RabbitMQPersistentPublishChannel));
                 return;
             }
 

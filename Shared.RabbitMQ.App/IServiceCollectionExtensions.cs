@@ -12,7 +12,7 @@ namespace Shared.RabbitMQ.App
                 .Configure<RabbitMQAppOptions>(configuration.GetSection("RabbitMQ"))
                 .AddSingleton<IConnectionFactoryProvider, UriConnectionFactoryProvider>()
                 .AddSingleton<IRabbitMQPersistentConnection, RabbitMQPersistentConnection>()
-                .AddSingleton<IRabbitMQSubscriptionsManager<SubscriptionInfo>, DefaultInMemoryRabbitMQSubscriptionsManager>()
+                .AddSingleton<IEventBusSubscriptionsManager<SubscriptionInfo>, InMemoryRabbitMQSubscriptionsManager>()
                 .AddSingleton<RabbitMQPersistentPublishChannel>()
                 .AddSingleton<RabbitMQPersistentConsumerChannel>()
                 .AddSingleton<IEventBusPublisher, RabbitMQEventBus>()
