@@ -2,9 +2,11 @@
 
 namespace Shared.RabbitMQ.App
 {
-    public sealed class RabbitMQAppOptions : RabbitMQOptions
+    public sealed class RabbitMQAppOptions
     {
-        public RabbitMQExchangeInfo? CalculatorExchange { get; set; }
+        public string ConnectionString { get; set; } = string.Empty;
+        public RetryPolicyOptions ConnectionRetryPolicy { get; set; } = new RetryPolicyOptions();
+        public RabbitMQExchangeOptions CalculatorExchange { get; set; } = new RabbitMQExchangeOptions();
         public RetryPolicyOptions PublishRetryPolicy { get; set; } = new RetryPolicyOptions();
     }
 }
