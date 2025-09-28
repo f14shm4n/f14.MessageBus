@@ -7,59 +7,56 @@ using RabbitMQ.Client.Exceptions;
 using Shared.Commons.Options.Polly;
 using System.Net.Sockets;
 
-namespace Shared.RabbitMQ
+namespace Shared.RabbitMQ.Internals
 {
-    public class RabbitMQPersistentConnection : IRabbitMQPersistentConnection
+    internal sealed class RabbitMQPersistentConnection : IRabbitMQPersistentConnection
     {
         private readonly ILogger<RabbitMQPersistentConnection> _logger;
         private readonly IConnectionFactory _connectionFactory;
         private readonly SemaphoreSlim _connLock = new(1, 1);
-        private readonly RetryPolicyOptions _retryPolicy;
+        private readonly IRabbitMQPersistentConnectionConfiguration _config;
         private IConnection? _connection;
 
         public RabbitMQPersistentConnection(
             ILogger<RabbitMQPersistentConnection> logger,
             IConnectionFactoryProvider connectionFactoryProvider,
-            RabbitMQOptions options)
+            IRabbitMQPersistentConnectionConfiguration config)
         {
             _logger = logger;
-            _retryPolicy = options.ConnectionRetryPolicy;
+            _config = config;
             _connectionFactory = connectionFactoryProvider.GetConnectionFactory();
         }
 
         public bool IsConnected => _connection != null && _connection.IsOpen;
 
-        public Task<IChannel> CreateChannelAsync()
+        public Task<IChannel> CreateChannelAsync(CancellationToken cancellationToken = default)
         {
             if (!IsConnected)
             {
                 throw new InvalidOperationException("No RabbitMQ connection available.");
             }
-            return _connection!.CreateChannelAsync();
+            return _connection!.CreateChannelAsync(cancellationToken: cancellationToken);
         }
 
-        public async ValueTask<bool> TryConnectAsync()
+        public async ValueTask<bool> TryConnectAsync(CancellationToken cancellationToken = default)
         {
             if (IsConnected)
             {
                 return true;
             }
 
-            await _connLock.WaitAsync();
+            await _connLock.WaitAsync(cancellationToken);
             try
             {
-                var polly = RetryPolicy
+                var polly = Policy
                     .Handle<SocketException>()
                     .Or<BrokerUnreachableException>()
-                    .WaitAndRetryAsync(_retryPolicy.RetryCount, _retryPolicy.CalculateDelay, (ex, time) =>
+                    .WaitAndRetryAsync(_config.RetryPolicy.RetryCount, _config.RetryPolicy.CalculateDelay, (ex, time) =>
                     {
                         _logger.LogWarning(ex, "RabbitMQ client failed to establish connection {Time} sec. ({Error})", $"{time.TotalSeconds:n0}", ex.Message);
                     });
 
-                await polly.ExecuteAsync(async () =>
-                {
-                    _connection = await _connectionFactory.CreateConnectionAsync();
-                });
+                await polly.ExecuteAsync(async ct => _connection = await _connectionFactory.CreateConnectionAsync(ct), cancellationToken);
 
                 if (!IsConnected)
                 {
@@ -86,21 +83,21 @@ namespace Shared.RabbitMQ
         {
             _logger.LogWarning("RabbitMQ connection blocked. Reconnecting...");
 
-            await TryConnectAsync();
+            await TryConnectAsync(@event.CancellationToken);
         }
 
         private async Task Connection_ConnectionShutdownAsync(object sender, ShutdownEventArgs @event)
         {
             _logger.LogWarning("RabbitMQ connection shutdown. Reconnecting...");
 
-            await TryConnectAsync();
+            await TryConnectAsync(@event.CancellationToken);
         }
 
         private async Task Connection_CallbackExceptionAsync(object sender, CallbackExceptionEventArgs @event)
         {
             _logger.LogWarning("RabbitMQ connection threw an exception. Reconnecting...");
 
-            await TryConnectAsync();
+            await TryConnectAsync(@event.CancellationToken);
         }
 
         #endregion
