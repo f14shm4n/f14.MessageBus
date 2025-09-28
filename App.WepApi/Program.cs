@@ -1,6 +1,7 @@
 using App.Constants;
 using Shared.EventBus;
 using Shared.RabbitMQ;
+using Shared.RabbitMQ.App;
 
 namespace App.WepApi
 {
@@ -9,22 +10,6 @@ namespace App.WepApi
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            builder.Services.AddEventBus(c =>
-            {
-                //c.AddConsumer()                
-                c.UseEventBus<RabbitMQBusBuilder>(rb =>
-                {
-                    rb
-                    .CreateConnection(new Uri(builder.Configuration.GetValue("RabbitMQ:ConnectionString", RabbitMQDefaults.DefaultUri)))
-                    .SetupExchange(
-                        exchange: builder.Configuration.GetValue("RabbitMQ:CalculatorExchange:name", AppConstants.CalculatorExchangeName),
-                        type: builder.Configuration.GetValue("RabbitMQ:CalculatorExchange:type", AppConstants.CalculatorExchangeType),
-                        durable: builder.Configuration.GetValue("RabbitMQ:CalculatorExchange:isDurable", AppConstants.CalculatorExchangeIsDurable)
-                        );
-
-                });
-            });
 
             builder.Services.AddControllers();
 
