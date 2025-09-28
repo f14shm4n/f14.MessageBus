@@ -2,9 +2,8 @@
 {
     public interface IConsumerManager
     {
-        bool TryAdd<TMessage, TConsumer>()
-           where TMessage : class
-           where TConsumer : IConsumer<TMessage>;
+        Type? GetMessageTypeByName(string messageTypeName);
+        bool TryAdd<TMessage, TConsumer>() where TConsumer : IConsumer<TMessage>;
 
         void TryGetConsumers(Type messageType, out IReadOnlyCollection<Type>? consumers);
     }

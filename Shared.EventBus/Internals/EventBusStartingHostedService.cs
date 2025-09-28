@@ -14,28 +14,28 @@ namespace Shared.EventBus
             _logger = logger;
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        public Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.StartingEventBusInstances();
 
             foreach (var instance in _instances)
             {
-                await instance.StartAsync(cancellationToken);
+                instance.StartAsync(cancellationToken);
             }
 
-            _logger.EventBusInstanceStarted();
+            return Task.CompletedTask;
         }
 
-        public async Task StopAsync(CancellationToken cancellationToken)
+        public Task StopAsync(CancellationToken cancellationToken)
         {
             _logger.StoppingEventBusInstances();
 
             foreach (var instance in _instances)
             {
-                await instance.StopAsync(cancellationToken);
+                instance.StopAsync(cancellationToken);
             }
 
-            _logger.EventBusInstanceStopped();
+            return Task.CompletedTask;
         }
     }
 
@@ -44,13 +44,7 @@ namespace Shared.EventBus
         [LoggerMessage(Level = LogLevel.Information, Message = "Starting event bus instances...")]
         internal static partial void StartingEventBusInstances(this ILogger logger);
 
-        [LoggerMessage(Level = LogLevel.Information, Message = "Event bus instances are running.")]
-        internal static partial void EventBusInstanceStarted(this ILogger logger);
-
         [LoggerMessage(Level = LogLevel.Information, Message = "Stopping event bus instances...")]
         internal static partial void StoppingEventBusInstances(this ILogger logger);
-
-        [LoggerMessage(Level = LogLevel.Information, Message = "Event bus instances have stopped.")]
-        internal static partial void EventBusInstanceStopped(this ILogger logger);
     }
 }

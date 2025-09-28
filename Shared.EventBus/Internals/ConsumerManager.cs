@@ -1,4 +1,4 @@
-﻿namespace Shared.EventBus
+﻿namespace Shared.EventBus.Internals
 {
     internal sealed class ConsumerManager : IConsumerManager
     {
@@ -10,7 +10,6 @@
         }
 
         public bool TryAdd<TMessage, TConsumer>()
-            where TMessage : class
             where TConsumer : IConsumer<TMessage>
         {
             return TryAddInternal(typeof(TMessage), typeof(TConsumer));
@@ -31,6 +30,8 @@
             list.Add(consumerType);
             return true;
         }
+
+        public Type? GetMessageTypeByName(string messageTypeName) => _consumers.Keys.FirstOrDefault(k => k.Name == messageTypeName);
 
         public void TryGetConsumers(Type messageType, out IReadOnlyCollection<Type>? consumers)
         {
