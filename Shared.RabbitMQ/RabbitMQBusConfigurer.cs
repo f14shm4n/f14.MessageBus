@@ -10,6 +10,7 @@ namespace Shared.RabbitMQ
         private readonly IServiceCollection _services;
         private readonly RabbitMQPersistentConnectionConfiguration _connectionConfig = new();
         private readonly ConnectionFactoryProvider _connectionFactoryProvider = new();
+        private readonly BasicPropertiesProvider _basicPropertiesProvider = new();
         private readonly RabbitMQDeclarator _declarator = new();
         private readonly RabbitMQEndPoints _endPoints = new();
 
@@ -27,6 +28,12 @@ namespace Shared.RabbitMQ
         {
             _connectionFactoryProvider.SetConnectionFactory(new ConnectionFactory());
             configure(_connectionFactoryProvider.GetConnectionFactory(), _connectionConfig);
+            return this;
+        }
+
+        public RabbitMQBusConfigurer ConfigureBasicProperties(Action<BasicProperties> configure)
+        {
+            configure(_basicPropertiesProvider.GetBasicProperties());
             return this;
         }
 
@@ -49,7 +56,7 @@ namespace Shared.RabbitMQ
             _services.AddSingleton<IRabbitMQPersistentConnection, RabbitMQPersistentConnection>();
             _services.AddSingleton<IRabbitMQPersistentChannel, RabbitMQPersistentChannel>();
             _services.AddSingleton<IRabbitMQPublisher, RabbitMQPublisher>();
-            _services.AddSingleton<IBasicPropertiesProvider>(new SimpleBasicPropertiesProvider(new BasicProperties { DeliveryMode = DeliveryModes.Persistent }));
+            _services.AddSingleton<IBasicPropertiesProvider>(_basicPropertiesProvider);
             _services.AddSingleton<IRabbitMQPersistentConnectionConfiguration>(_connectionConfig);
             _services.AddSingleton<IConnectionFactoryProvider>(_connectionFactoryProvider);
             _services.AddSingleton<IRabbitMQDeclarationCollection>(_declarator);
