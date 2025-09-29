@@ -4,6 +4,8 @@ namespace Shared.RabbitMQ
 {
     public interface IRabbitMQPublisher
     {
-        Task PublishAsync<TMessage>(IReadOnlySet<string> exchanges, TMessage message, BasicProperties basicProperties, CancellationToken cancellationToken = default);
+        IRabbitMQEndPointCollection EndPoints { get; }
+
+        Task PublishAsync<TMessage>(TMessage message, BasicProperties basicProperties, CancellationToken cancellationToken = default);
     }
 }

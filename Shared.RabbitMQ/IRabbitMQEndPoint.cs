@@ -8,6 +8,6 @@ namespace Shared.RabbitMQ
         string Exchange { get; }
         IReadOnlyCollection<Func<IChannel, CancellationToken, Task>> Bindings { get; }
         IReadOnlySet<string> RoutingKeys { get; }
-        void Consume<TMessage>();
+        void Message<TMessage>();
     }
 }

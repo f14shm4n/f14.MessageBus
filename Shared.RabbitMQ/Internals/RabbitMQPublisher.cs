@@ -2,8 +2,8 @@
 using Polly;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
+using Shared.EventBus;
 using System.Net.Sockets;
-using System.Text.Json;
 
 namespace Shared.RabbitMQ.Internals
 {
@@ -14,14 +14,28 @@ namespace Shared.RabbitMQ.Internals
 
         private readonly ILogger<RabbitMQPublisher> _logger;
         private readonly IRabbitMQPersistentConnection _connection;
+        private readonly IMessageSerializer _messageSerializer;
+        private readonly IRabbitMQEndPointCollection _endPoints;
 
-        public RabbitMQPublisher(ILogger<RabbitMQPublisher> logger, IRabbitMQPersistentConnection connection)
+        private readonly Dictionary<string, HashSet<string>> _publishingMap = [];
+
+        public RabbitMQPublisher(
+            ILogger<RabbitMQPublisher> logger,
+            IRabbitMQPersistentConnection connection,
+            IMessageSerializer messageSerializer,
+            IRabbitMQEndPointCollection endPoints)
         {
             _logger = logger;
             _connection = connection;
+            _messageSerializer = messageSerializer;
+            _endPoints = endPoints;
+
+            _publishingMap = EndPoints.MapRoutingKeyToExchange();
         }
 
-        public async Task PublishAsync<TMessage>(IReadOnlySet<string> exchanges, TMessage message, BasicProperties basicProperties, CancellationToken cancellationToken = default)
+        public IRabbitMQEndPointCollection EndPoints => _endPoints;
+
+        public async Task PublishAsync<TMessage>(TMessage message, BasicProperties basicProperties, CancellationToken cancellationToken = default)
         {
             if (!_connection.IsConnected)
             {
@@ -30,13 +44,19 @@ namespace Shared.RabbitMQ.Internals
             }
 
             var messageTypeName = typeof(TMessage).Name;
+            if (!_publishingMap.TryGetValue(messageTypeName, out var exchanges))
+            {
+                _logger.LogWarning("No exchanges are registered with this routing key. RoutingKey: '{Key}'", messageTypeName);
+                return;
+            }
+
             try
             {
+                // TODO: I guess it can be published in parallel mode  
+
                 _logger.LogTrace("Creating new RabbitMQ channel for publish.");
                 await using (var channel = await _connection.CreateChannelAsync(cancellationToken))
                 {
-                    var body = JsonSerializer.SerializeToUtf8Bytes(message);
-
                     _logger.LogTrace("Sending message to RabbitMQ. MessageType: '{Type}'", messageTypeName);
 
                     var policy = Policy
@@ -46,7 +66,8 @@ namespace Shared.RabbitMQ.Internals
                         {
                             _logger.LogWarning(ex, "Failed to publish message. MessageType: '{Type}', after {Time} sec. ({Error})", messageTypeName, $"{time.TotalSeconds:n0}", ex.Message);
                         });
-                    // TODO: I guess it can be published in parallel mode
+
+                    var body = _messageSerializer.Serialize(message);
                     foreach (var exchange in exchanges)
                     {
                         await policy.ExecuteAsync(async ct =>

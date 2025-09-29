@@ -17,7 +17,7 @@ namespace Shared.RabbitMQ.Internals
 
         public IReadOnlySet<string> RoutingKeys => _routingKeys;
 
-        public void Consume<TMessage>()
+        public void Message<TMessage>()
         {
             BindQueue(typeof(TMessage).Name);
         }

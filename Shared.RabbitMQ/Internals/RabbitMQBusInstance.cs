@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
+using Shared.Commons;
 using Shared.EventBus;
+using System.Net;
 
 namespace Shared.RabbitMQ.Internals
 {
@@ -8,39 +10,54 @@ namespace Shared.RabbitMQ.Internals
     {
         private readonly ILogger<RabbitMQBusInstance> _logger;
         private readonly IRabbitMQPersistentConnection _connection;
-        private readonly IRabbitMQPublisher _publisher;
         private readonly IBasicPropertiesProvider _basicPropertiesProvider;
-        private readonly IRabbitMQPersistentChannel _consumerChannel;
         private readonly IRabbitMQDeclarationCollection _declarations;
-        private readonly IRabbitMQEndPointCollection _endPoints;
+        private readonly IRabbitMQPublisher? _publisher;
+        private readonly IRabbitMQConsumerChannel? _consumerChannel;
 
         public RabbitMQBusInstance(
             ILogger<RabbitMQBusInstance> logger,
             IRabbitMQPersistentConnection connection,
-            IRabbitMQPublisher publisher,
             IBasicPropertiesProvider basicPropertiesProvider,
-            IRabbitMQPersistentChannel consumerChannel,
             IRabbitMQDeclarationCollection declarations,
-            IRabbitMQEndPointCollection endPoints)
+            IRabbitMQPublisher? publisher)
+            : this(logger, connection, basicPropertiesProvider, declarations, publisher, null)
+        {
+        }
+
+        public RabbitMQBusInstance(
+            ILogger<RabbitMQBusInstance> logger,
+            IRabbitMQPersistentConnection connection,
+            IBasicPropertiesProvider basicPropertiesProvider,
+            IRabbitMQDeclarationCollection declarations,
+            IRabbitMQConsumerChannel? consumerChannel)
+            : this(logger, connection, basicPropertiesProvider, declarations, null, consumerChannel)
+        {
+        }
+
+        public RabbitMQBusInstance(
+            ILogger<RabbitMQBusInstance> logger,
+            IRabbitMQPersistentConnection connection,
+            IBasicPropertiesProvider basicPropertiesProvider,
+            IRabbitMQDeclarationCollection declarations,
+            IRabbitMQPublisher? publisher,
+            IRabbitMQConsumerChannel? consumerChannel)
         {
             _logger = logger;
             _connection = connection;
-            _publisher = publisher;
             _basicPropertiesProvider = basicPropertiesProvider;
-            _consumerChannel = consumerChannel;
             _declarations = declarations;
-            _endPoints = endPoints;
+            _publisher = publisher;
+            _consumerChannel = consumerChannel;
         }
 
         public async Task SendAsync<TMessage>(TMessage message, CancellationToken cancellationToken = default) where TMessage : class
         {
-            // TODO: Can be cached
-            var exchanges = _endPoints
-                .Where(x => x.RoutingKeys.Contains(message.GetType().Name))
-                .Select(x => x.Exchange)
-                .ToHashSet();
-
-            await _publisher.PublishAsync(exchanges, message, _basicPropertiesProvider.GetBasicProperties(), cancellationToken);
+            if (_publisher is null)
+            {
+                return;
+            }
+            await _publisher.PublishAsync(message, _basicPropertiesProvider.GetBasicProperties(), cancellationToken);
         }
 
         public async Task StartAsync(CancellationToken cancellationToken = default)
@@ -54,28 +71,22 @@ namespace Shared.RabbitMQ.Internals
                 _logger.LogCritical("CRITICAL: The RabbitMQ event bus instance is not running. Unable to establish connection with RabbitMQ host.");
                 return;
             }
-            // 1. Prepare and execute declarations and bindings 
-            // 1.1 Prepare list of declarations and bindings
-            List<Func<IChannel, CancellationToken, Task>>? declarationAndBindings = [];
-            if (_declarations is not null)
+            // 1. Apply declarations
+            if (_declarations.Count > 0)
             {
-                declarationAndBindings.AddRange(_declarations);
+                await ApplyConfiguratorsAsync(_connection, _declarations, cancellationToken);
             }
-            if (_endPoints?.Count > 0)
+            // 2. Apply bindings from publisher
+            if (_publisher is not null)
             {
-                declarationAndBindings.AddRange(_endPoints.SelectMany(x => x.Bindings));
+                await ApplyConfiguratorsAsync(_connection, _publisher.EndPoints.SelectMany(x => x.Bindings), cancellationToken);
             }
-            // 1.2 Execute declarations and bindings
-            await using (var channel = await _connection.CreateChannelAsync(cancellationToken))
+            // 2. Apply bindings from consumer and start consuming
+            if (_consumerChannel is not null)
             {
-                foreach (var d in declarationAndBindings)
-                {
-                    await d(channel, cancellationToken);
-                }
+                await ApplyConfiguratorsAsync(_connection, _consumerChannel.EndPoints.SelectMany(x => x.Bindings), cancellationToken);
+                await _consumerChannel.TryOpenAsync(cancellationToken);
             }
-            // 2. Open consumer channel and start basic consuming
-            await _consumerChannel.TryOpenAsync(cancellationToken);
-
             _logger.LogInformation("The RabbitMQ event bus instance has started.");
         }
 
@@ -83,6 +94,17 @@ namespace Shared.RabbitMQ.Internals
         {
             // TODO: Dispose all disposable objects here or implement IDisposable
             return Task.CompletedTask;
+        }
+
+        private static async Task ApplyConfiguratorsAsync(IRabbitMQPersistentConnection connection, IEnumerable<Func<IChannel, CancellationToken, Task>> items, CancellationToken cancellationToken = default)
+        {
+            await using (var channel = await connection.CreateChannelAsync(cancellationToken))
+            {
+                foreach (var d in items)
+                {
+                    await d(channel, cancellationToken);
+                }
+            }
         }
     }
 }
