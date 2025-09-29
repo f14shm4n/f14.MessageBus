@@ -18,16 +18,20 @@ namespace App.CalcWorker
                         .Consume<DummyConsumerMessage, DummyConsumer>()
                         .UseEventBus<RabbitMQBusConfigurer>(config =>
                         {
-                            var opts = builder.Configuration.Get<RabbitMQAppOptions>() ?? throw new InvalidOperationException("RabbitMQ options required. Check you appsettings.json.");
+                            var opts = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMQAppOptions>() ?? throw new InvalidOperationException("RabbitMQ options required. Check you appsettings.json.");
                             config
-                                .ConfigureConnection((cf, cc) =>
+                                .Connection((cf, cc) =>
                                 {
                                     cf.Uri = new Uri(opts.ConnectionString);
                                     cc.RetryPolicy = opts.ConnectionRetryPolicy;
                                 })
-                                .ConfigureEndPoint(opts.CalculatorExchange.Name, opts.CalculatorExchange.Queue, endpoint =>
+                                //.PublishEndPoint(opts.CalculatorExchange.Name, opts.CalculatorExchange.Queue, endpoint =>
+                                //{
+                                //    endpoint.Message<DummyConsumerMessage>();
+                                //})
+                                .ConsumeEndPoint(opts.CalculatorExchange.Name, opts.CalculatorExchange.Queue, endpoint =>
                                 {
-                                    endpoint.Consume<DummyConsumerMessage>();
+                                    endpoint.Message<DummyConsumerMessage>();
                                 });
                         });
                 });
