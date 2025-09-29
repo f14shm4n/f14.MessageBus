@@ -13,7 +13,7 @@ namespace Shared.RabbitMQ.Internals
 
         public int Count => ExchangeDeclarations.Count + QueueDeclarations.Count;
 
-        public void ExchangeDeclare(string exchange, string type, bool durable = false, bool autoDelete = false, IDictionary<string, object?>? arguments = null, bool passive = false, bool noWait = false)
+        public void ExchangeDeclare(string exchange, ExchangeType type, bool durable = false, bool autoDelete = false, IDictionary<string, object?>? arguments = null, bool passive = false, bool noWait = false)
         {
             _exchangeDeclarations[exchange] = (c, ct) => c.ExchangeDeclareAsync(exchange, type, durable, autoDelete, arguments, passive, noWait, ct);
         }
@@ -25,7 +25,7 @@ namespace Shared.RabbitMQ.Internals
 
         public void DefaultExchangeDeclare(string exchange)
         {
-            ExchangeDeclare(exchange, RabbitMQConstants.ExchangeTypes.Fanout, durable: true);
+            ExchangeDeclare(exchange, ExchangeType.Fanout, durable: true);
         }
 
         public void DefaultQueueDeclare(string queue)
