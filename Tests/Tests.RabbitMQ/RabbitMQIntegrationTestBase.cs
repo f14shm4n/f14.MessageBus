@@ -1,4 +1,5 @@
-﻿using DotNet.Testcontainers.Builders;
+﻿using App.Constants;
+using DotNet.Testcontainers.Builders;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -7,6 +8,7 @@ using Shared.Commons.Options.Polly;
 using Shared.EventBus;
 using Shared.RabbitMQ;
 using Shared.RabbitMQ.App;
+using Shared.RabbitMQ.Internals;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,11 +45,10 @@ namespace Tests.RabbitMQ
             return new RabbitMQAppOptions
             {
                 ConnectionString = _rabbitMqContainer.GetConnectionString(),
-                CalculatorExchange = new Shared.RabbitMQ.RabbitMQExchangeInfo
+                CalculatorExchange = new RabbitMQExchangeOptions
                 {
-                    Name = "calExchange",
-                    Type = "direct",
-                    Queue = "operations"
+                    Name = AppConstants.CalculatorExchangeName,
+                    Queue = AppConstants.CalculatorQueueName
                 },
                 ConnectionRetryPolicy = new RetryPolicyOptions
                 {
@@ -67,13 +68,10 @@ namespace Tests.RabbitMQ
             return providerMock.Object;
         }
 
-        protected IRabbitMQPersistentConnection CreateConnection(
-            RabbitMQAppOptions? options = null,
-            IConnectionFactoryProvider? connectionFactoryProvider = null)
+        protected IRabbitMQPersistentConnection CreateConnection(IConnectionFactoryProvider? connectionFactoryProvider = null)
         {
-            options ??= CreateOptions();
             connectionFactoryProvider ??= CreateConnectionFactoryProvider();
-            return new RabbitMQPersistentConnection(CreateLogger<RabbitMQPersistentConnection>(), connectionFactoryProvider, options);
+            return new RabbitMQPersistentConnection(CreateLogger<RabbitMQPersistentConnection>(), connectionFactoryProvider, new RabbitMQPersistentConnectionConfiguration());
         }
 
         #endregion

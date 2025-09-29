@@ -1,10 +1,5 @@
 ﻿using FluentAssertions;
 using Shared.EventBus.Internals;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tests.SharedResources.EventBus.Messages;
 
 namespace Tests.EventBus

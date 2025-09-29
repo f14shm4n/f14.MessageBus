@@ -10,7 +10,7 @@ namespace Tests.RabbitMQ
         {
             await using (var con = CreateConnection())
             {
-                (await con.TryConnectAsync()).Should().BeTrue();
+                (await con.TryConnectAsync(TestContext.Current.CancellationToken)).Should().BeTrue();
                 con.IsConnected.Should().BeTrue();
             }
         }
