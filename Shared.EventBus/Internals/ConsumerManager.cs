@@ -9,11 +9,28 @@
             _consumers = [];
         }
 
+        public int RegisteredMessageTypes => _consumers.Count;
+
+        public int ConsumersCount => _consumers.Values.Select(x => x.Count).Sum();
+
         public bool TryAdd<TMessage, TConsumer>()
             where TConsumer : IConsumer<TMessage>
         {
             return TryAddInternal(typeof(TMessage), typeof(TConsumer));
         }
+
+        public Type? GetMessageTypeByName(string messageTypeName) => _consumers.Keys.FirstOrDefault(k => k.Name == messageTypeName);
+
+        public void TryGetConsumers(Type messageType, out IReadOnlyCollection<Type>? consumers)
+        {
+            consumers = null;
+            if (_consumers.TryGetValue(messageType, out var list))
+            {
+                consumers = list;
+            }
+        }
+
+        #region Private
 
         private bool TryAddInternal(Type messageType, Type consumerType)
         {
@@ -31,15 +48,6 @@
             return true;
         }
 
-        public Type? GetMessageTypeByName(string messageTypeName) => _consumers.Keys.FirstOrDefault(k => k.Name == messageTypeName);
-
-        public void TryGetConsumers(Type messageType, out IReadOnlyCollection<Type>? consumers)
-        {
-            consumers = null;
-            if (_consumers.TryGetValue(messageType, out var list))
-            {
-                consumers = list;
-            }
-        }
+        #endregion
     }
 }
