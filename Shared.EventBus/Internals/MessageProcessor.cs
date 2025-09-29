@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Text;
-using System.Text.Json;
 
 namespace Shared.EventBus.Internals
 {
@@ -10,13 +8,14 @@ namespace Shared.EventBus.Internals
         private readonly ILogger<MessageProcessor> _logger;
         private readonly IConsumerManager _consumerManager;
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
+        private readonly IMessageSerializer _messageSerializer;
 
-        public MessageProcessor(ILogger<MessageProcessor> logger, IConsumerManager consumerManager, IServiceScopeFactory scopeFactory)
+        public MessageProcessor(ILogger<MessageProcessor> logger, IConsumerManager consumerManager, IServiceScopeFactory scopeFactory, IMessageSerializer messageSerializer)
         {
             _logger = logger;
             _consumerManager = consumerManager;
             _scopeFactory = scopeFactory;
+            _messageSerializer = messageSerializer;
         }
 
         public async Task ProcessMessageAsync(string messageKey, ReadOnlyMemory<byte> messageBody, CancellationToken cancellationToken = default)
@@ -37,11 +36,10 @@ namespace Shared.EventBus.Internals
 
             using (var scope = _scopeFactory.CreateScope())
             {
-                var messageAsString = Encoding.UTF8.GetString(messageBody.ToArray());
+                var message = _messageSerializer.Deserialize(messageBody.ToArray(), messageType);
                 foreach (var consumerType in consumerTypes)
                 {
                     var consumer = ActivatorUtilities.CreateInstance(scope.ServiceProvider, consumerType);
-                    var message = JsonSerializer.Deserialize(messageAsString, messageType, _jsonOptions);
                     var concreteType = typeof(IConsumer<>).MakeGenericType(messageType);
 
                     await Task.Yield();

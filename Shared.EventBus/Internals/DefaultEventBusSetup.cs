@@ -12,6 +12,7 @@ namespace Shared.EventBus.Internals
             _services = services;
             _services.AddSingleton<IConsumerManager>(_consumerManager);
             _services.AddSingleton<IMessageProcessor, MessageProcessor>();
+            _services.AddSingleton<IMessageSerializer, JsonTextMessageSerializer>();
         }
 
         public IEventBusSetup Consume<TMessage, TConsumer>()
