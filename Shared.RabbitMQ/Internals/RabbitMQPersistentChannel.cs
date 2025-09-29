@@ -1,41 +1,26 @@
 ﻿using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using Shared.EventBus;
 
 namespace Shared.RabbitMQ
 {
-    internal sealed class RabbitMQPersistentChannel : IRabbitMQPersistentChannel
+    internal abstract class RabbitMQPersistentChannel : IRabbitMQPersistentChannel
     {
         private readonly IRabbitMQPersistentConnection _connection;
-        private readonly ILogger<RabbitMQPersistentChannel> _logger;
-        private readonly IRabbitMQEndPointCollection _endPoints;
-        private readonly IMessageProcessor _eventProcessor;
+        private readonly ILogger<RabbitMQConsumerChannel> _logger;
 
         private readonly SemaphoreSlim _channelLock = new(1, 1);
         private IChannel? _channel;
 
-        public RabbitMQPersistentChannel(
-            ILogger<RabbitMQPersistentChannel> logger,
-            IRabbitMQPersistentConnection connection,
-            IMessageProcessor eventProcessor,
-            IRabbitMQEndPointCollection endPoints)
+        public RabbitMQPersistentChannel(ILogger<RabbitMQConsumerChannel> logger, IRabbitMQPersistentConnection connection)
         {
             _logger = logger;
             _connection = connection;
-            _eventProcessor = eventProcessor;
-            _endPoints = endPoints;
         }
 
         public bool IsOpen => _channel is not null && _channel.IsOpen;
 
-        public async ValueTask<bool> TryOpenAsync(CancellationToken cancellationToken = default)
+        public virtual async ValueTask<bool> TryOpenAsync(CancellationToken cancellationToken = default)
         {
-            if (_endPoints.Count == 0)
-            {
-                return false;
-            }
-
             if (IsOpen)
             {
                 return true;
@@ -52,22 +37,10 @@ namespace Shared.RabbitMQ
                 _channel = await _connection.CreateChannelAsync(cancellationToken);
                 if (IsOpen)
                 {
-                    _logger.LogTrace("Created new RabbitMQ channel: '{ChannelType}'.", GetType().Name);
-                    _logger.LogTrace("Starting RabbitMQ consume.");
-
-                    var consumer = new AsyncEventingBasicConsumer(_channel);
-                    consumer.ReceivedAsync += Consumer_Received;
-
-                    foreach (var name in _endPoints.Select(x => x.Queue).ToHashSet())
-                    {
-                        await _channel.BasicConsumeAsync(
-                            queue: name,
-                            autoAck: false,
-                            consumer: consumer,
-                            cancellationToken: cancellationToken);
-                    }
-
+                    _logger.LogTrace("Created new RabbitMQ persistent channel.");
                     _channel.CallbackExceptionAsync += Channel_CallbackExceptionAsync;
+
+                    await OnChannelCreatedAsync(_channel, cancellationToken);
                     return true;
                 }
             }
@@ -82,23 +55,15 @@ namespace Shared.RabbitMQ
             return false;
         }
 
+        #region Protected
+
+        protected ILogger Logger => _logger;
+
+        protected abstract Task OnChannelCreatedAsync(IChannel channel, CancellationToken cancellationToken = default);
+
+        #endregion
+
         #region EventHandler
-
-        private async Task Consumer_Received(object sender, BasicDeliverEventArgs args)
-        {
-            try
-            {
-                await _eventProcessor.ProcessMessageAsync(args.RoutingKey, args.Body);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Cannot process message. MessageType(routingKey): '{Type}'", args.RoutingKey);
-            }
-
-            // TODO: Handle message if error has been occurred (Dead message exchange).
-
-            await _channel!.BasicAckAsync(args.DeliveryTag, multiple: false);
-        }
 
         private async Task Channel_CallbackExceptionAsync(object sender, global::RabbitMQ.Client.Events.CallbackExceptionEventArgs @event)
         {
@@ -130,7 +95,7 @@ namespace Shared.RabbitMQ
             GC.SuppressFinalize(this);
         }
 
-        private void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (disposing)
             {
@@ -143,7 +108,7 @@ namespace Shared.RabbitMQ
             }
         }
 
-        private async ValueTask DisposeAsyncCore()
+        protected virtual async ValueTask DisposeAsyncCore()
         {
             if (_channel is not null)
             {
