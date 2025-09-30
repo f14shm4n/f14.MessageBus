@@ -2,6 +2,6 @@
 {
     public interface IMessageProcessor
     {
-        Task ProcessMessageAsync(string messageKey, ReadOnlyMemory<byte> messageBody, CancellationToken cancellationToken = default);
+        Task ProcessMessageAsync(string messageTypeName, ReadOnlyMemory<byte> messageBody, CancellationToken cancellationToken = default);
     }
 }
