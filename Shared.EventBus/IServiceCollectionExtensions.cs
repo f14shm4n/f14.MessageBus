@@ -7,12 +7,8 @@ namespace Shared.EventBus
     {
         public static IServiceCollection AddEventBus(this IServiceCollection services, Action<IEventBusSetup> configure)
         {
-            var setup = new DefaultEventBusSetup(services);
+            var setup = new EventBusSetup(services);
             configure(setup);
-
-            services.AddSingleton<IEventBus, DefaultEventBus>();
-            services.AddHostedService<EventBusStartingHostedService>();            
-
             return services;
         }
     }
