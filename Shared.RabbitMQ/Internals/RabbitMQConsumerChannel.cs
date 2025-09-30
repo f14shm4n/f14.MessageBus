@@ -6,19 +6,16 @@ namespace Shared.RabbitMQ
 {
     internal sealed class RabbitMQConsumerChannel : RabbitMQPersistentChannel, IRabbitMQConsumerChannel
     {
-        private readonly IMessageProcessor _eventProcessor;
         private readonly IAsyncBasicConsumerFactory _asyncBasicConsumerFactory;
         private readonly IRabbitMQEndPointCollection _endPoints;
 
         public RabbitMQConsumerChannel(
             ILogger<RabbitMQConsumerChannel> logger,
             IRabbitMQPersistentConnection connection,
-            IMessageProcessor eventProcessor,
             IAsyncBasicConsumerFactory asyncBasicConsumerFactory,
             IRabbitMQEndPointCollection endPoints)
             : base(logger, connection)
         {
-            _eventProcessor = eventProcessor;
             _asyncBasicConsumerFactory = asyncBasicConsumerFactory;
             _endPoints = endPoints;
         }
@@ -37,8 +34,6 @@ namespace Shared.RabbitMQ
         protected override async Task OnChannelCreatedAsync(IChannel channel, CancellationToken cancellationToken = default)
         {
             Logger.LogTrace("Starting RabbitMQ consume.");
-
-            // TODO: Need to create separate consumer class
 
             var consumer = _asyncBasicConsumerFactory.CreateAsyncBasicConsumer(channel);
             foreach (var name in _endPoints.Select(x => x.Queue).ToHashSet())
