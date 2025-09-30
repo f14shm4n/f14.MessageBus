@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using RabbitMQ.Client;
 using Shared.Commons;
 using Shared.EventBus;
@@ -30,6 +31,8 @@ namespace Shared.RabbitMQ
 
         public RabbitMQBusConfigurer BasicProperties(Action<BasicProperties> configure)
         {
+            ArgumentNullException.ThrowIfNull(configure);
+
             configure(_basicPropertiesProvider.GetBasicProperties());
             return this;
         }
@@ -58,6 +61,12 @@ namespace Shared.RabbitMQ
             return this;
         }
 
+        public RabbitMQBusConfigurer ReplaceAsyncBasicConsumerFactory<TFactoryImpl>() where TFactoryImpl : class, IAsyncBasicConsumerFactory
+        {
+            _services.Replace(ServiceDescriptor.Singleton<IAsyncBasicConsumerFactory, TFactoryImpl>());
+            return this;
+        }
+
         public void Complete()
         {
             _services.AddSingleton<IRabbitMQPersistentConnection, RabbitMQPersistentConnection>();
@@ -65,6 +74,7 @@ namespace Shared.RabbitMQ
             _services.AddSingleton<IRabbitMQPersistentConnectionConfiguration>(_connectionConfig);
             _services.AddSingleton<IConnectionFactoryProvider>(_connectionFactoryProvider);
             _services.AddSingleton<IRabbitMQDeclarationCollection>(_declarator);
+            _services.AddSingleton<IAsyncBasicConsumerFactory, DefaultAsyncEventingBasicConsumerFactory>();
             _services.AddSingleton<IEventBusInstance>(sp =>
             {
                 IRabbitMQPublisher? publisher = _publisherEndPoints.Count > 0 ? ActivatorUtilities.CreateInstance<RabbitMQPublisher>(sp, _publisherEndPoints) : null;
