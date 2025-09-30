@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Shared.EventBus.Internals
 {
@@ -18,15 +17,11 @@ namespace Shared.EventBus.Internals
 
         public async Task ProcessMessageAsync(string messageTypeName, ReadOnlyMemory<byte> messageBody, CancellationToken cancellationToken = default)
         {
-            var messageType = _consumerManager.GetMessageTypeByName(messageTypeName);
-            if (messageType is null)
-            {
-                return;
-            }
+            var messageType = _consumerManager.GetMessageTypeByName(messageTypeName) ?? throw new InvalidOperationException($"Unknown message type name: '{messageTypeName}'. Make sure the message type name is registered in {nameof(IConsumerManager)}.");
             _consumerManager.TryGetConsumers(messageType, out var consumerTypes);
             if (consumerTypes is null)
             {
-                return;
+                throw new InvalidOperationException($"There are no registered consumers for given message type name: '{messageTypeName}'.");
             }
 
             using (var scope = _scopeFactory.CreateScope())
