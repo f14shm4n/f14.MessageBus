@@ -13,12 +13,14 @@ namespace Shared.EventBus.Internals
             _instances = instances;
         }
 
-        public async Task SendAsync<TMessage>(TMessage message, CancellationToken cancellationToken = default) where TMessage : class
+        public Task SendAsync<TMessage>(TMessage message, CancellationToken cancellationToken = default) where TMessage : class
         {
+            List<Task> tasks = [];
             foreach (var instance in _instances)
             {
-                await instance.SendAsync(message, cancellationToken);
+                tasks.Add(instance.SendAsync(message, cancellationToken));
             }
+            return Task.WhenAll(tasks);
         }
     }
 }
