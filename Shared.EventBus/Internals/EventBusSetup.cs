@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Shared.EventBus.Internals
 {
@@ -32,6 +33,12 @@ namespace Shared.EventBus.Internals
             var configurer = (IBusConfigurer)Activator.CreateInstance(typeof(IBusConfigurer), _services)!;
             configure(configurer);
             configurer.Complete();
+            return this;
+        }
+
+        public IEventBusSetup ReplaceMessageSerializer<TMessageSerializerImpl>() where TMessageSerializerImpl : class, IMessageSerializer
+        {
+            _services.Replace(ServiceDescriptor.Singleton<IMessageSerializer, TMessageSerializerImpl>());
             return this;
         }
     }
