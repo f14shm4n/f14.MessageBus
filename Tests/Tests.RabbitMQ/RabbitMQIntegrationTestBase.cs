@@ -1,19 +1,11 @@
 ﻿using App.Constants;
-using DotNet.Testcontainers.Builders;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using RabbitMQ.Client;
 using Shared.Commons.Options.Polly;
-using Shared.EventBus;
 using Shared.RabbitMQ;
 using Shared.RabbitMQ.App;
 using Shared.RabbitMQ.Internals;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Testcontainers.RabbitMq;
 
 namespace Tests.RabbitMQ
