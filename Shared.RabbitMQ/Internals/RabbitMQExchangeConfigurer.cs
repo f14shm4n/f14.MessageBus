@@ -34,7 +34,7 @@
         {
             if (_exchange is null || _queue is null)
             {
-                throw new InvalidOperationException("The Exchange and Queue name cannot be empty and must be configured.");
+                ThrowHelper.ExchangeOrQueueNamesIsNotSet();
             }
             configure(_endPoints.RegistedEndPoint(_exchange, _queue));
         }

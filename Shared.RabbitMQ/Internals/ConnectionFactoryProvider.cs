@@ -8,6 +8,13 @@ namespace Shared.RabbitMQ.Internals
 
         public void SetConnectionFactory(IConnectionFactory connectionFactory) => _connectionFactory = connectionFactory;
 
-        public IConnectionFactory GetConnectionFactory() => _connectionFactory ?? throw new InvalidOperationException("The RabbitMQ connection factory is not configured.");
+        public IConnectionFactory GetConnectionFactory()
+        {
+            if (_connectionFactory is null)
+            {
+                ThrowHelper.ConnectionFactoryIsNotConfigured();
+            }
+            return _connectionFactory;
+        }
     }
 }

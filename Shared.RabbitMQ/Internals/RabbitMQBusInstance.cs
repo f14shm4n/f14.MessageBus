@@ -6,7 +6,7 @@ using System.Net;
 
 namespace Shared.RabbitMQ.Internals
 {
-    internal sealed class RabbitMQBusInstance : IEventBusInstance
+    internal sealed class RabbitMQBusInstance : IEventBusInstance, IRabbitMQBusSender
     {
         private readonly ILogger<RabbitMQBusInstance> _logger;
         private readonly IRabbitMQPersistentConnection _connection;
@@ -51,13 +51,13 @@ namespace Shared.RabbitMQ.Internals
             _consumerChannel = consumerChannel;
         }
 
-        public async Task SendAsync<TMessage>(TMessage message, CancellationToken cancellationToken = default) where TMessage : class
+        public Task SendAsync<TMessage>(TMessage message, CancellationToken cancellationToken = default)
         {
             if (_publisher is null)
             {
-                return;
+                ThrowHelper.PublisherIsNotSet();
             }
-            await _publisher.PublishAsync(message, _basicPropertiesProvider.GetBasicProperties(), cancellationToken);
+            return _publisher.PublishAsync(message, _basicPropertiesProvider.GetBasicProperties(), cancellationToken);
         }
 
         public async Task StartAsync(CancellationToken cancellationToken = default)

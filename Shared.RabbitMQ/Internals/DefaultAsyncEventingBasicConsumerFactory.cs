@@ -6,18 +6,19 @@ namespace Shared.RabbitMQ.Internals
 {
     internal sealed class DefaultAsyncEventingBasicConsumerFactory : IAsyncBasicConsumerFactory
     {
-        private readonly ILogger<DefaultAsyncEventingBasicConsumer> _logger;
+        private readonly IRabbitMQErrorResolver _errorResolver;
         private readonly IMessageProcessor _messageProcessor;
 
-        public DefaultAsyncEventingBasicConsumerFactory(ILogger<DefaultAsyncEventingBasicConsumer> logger, IMessageProcessor messageProcessor)
+        public DefaultAsyncEventingBasicConsumerFactory(IRabbitMQErrorResolver errorResolver, IMessageProcessor messageProcessor)
         {
-            _logger = logger;
+
             _messageProcessor = messageProcessor;
+            _errorResolver = errorResolver;
         }
 
         public IAsyncBasicConsumer CreateAsyncBasicConsumer(IChannel channel)
         {
-            return new DefaultAsyncEventingBasicConsumer(_logger, _messageProcessor, channel);
+            return new DefaultAsyncEventingBasicConsumer(_errorResolver, _messageProcessor, channel);
         }
     }
 }

@@ -33,7 +33,7 @@ namespace Shared.RabbitMQ.Internals
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("No RabbitMQ connection available.");
+                ThrowHelper.NoAvailableConnection();
             }
             return _connection!.CreateChannelAsync(cancellationToken: cancellationToken);
         }

@@ -16,6 +16,7 @@ namespace Shared.RabbitMQ
         private readonly RabbitMQDeclarator _declarator = new();
         private readonly RabbitMQEndPoints _publisherEndPoints = new();
         private readonly RabbitMQEndPoints _consumerEndPoints = new();
+        private IRabbitMQErrorResolver _rabbitMQErrorResolver = new RabbitMQErrorResolver();
 
         public RabbitMQBusConfigurer(IServiceCollection services)
         {
@@ -47,15 +48,24 @@ namespace Shared.RabbitMQ
             return this;
         }
 
+        public RabbitMQBusConfigurer SetErrorResolver(IRabbitMQErrorResolver errorResolver)
+        {
+            ArgumentNullException.ThrowIfNull(nameof(errorResolver));
+
+            _rabbitMQErrorResolver = errorResolver;
+            return this;
+        }
+
         public void Complete()
         {
-            _services.AddSingleton<IRabbitMQPersistentConnection, RabbitMQPersistentConnection>();
-            _services.AddSingleton<IBasicPropertiesProvider>(_basicPropertiesProvider);
-            _services.AddSingleton<IRabbitMQPersistentConnectionConfiguration>(_connectionConfig);
-            _services.AddSingleton<IConnectionFactoryProvider>(_connectionFactoryProvider);
-            _services.AddSingleton<IRabbitMQDeclarationCollection>(_declarator);
-            _services.AddSingleton<IAsyncBasicConsumerFactory, DefaultAsyncEventingBasicConsumerFactory>();
-            _services.AddSingleton<IEventBusInstance>(sp =>
+            _services.AddSingleton<IRabbitMQPersistentConnection, RabbitMQPersistentConnection>()
+            .AddSingleton<IBasicPropertiesProvider>(_basicPropertiesProvider)
+            .AddSingleton<IRabbitMQPersistentConnectionConfiguration>(_connectionConfig)
+            .AddSingleton<IConnectionFactoryProvider>(_connectionFactoryProvider)
+            .AddSingleton<IRabbitMQDeclarationCollection>(_declarator)
+            .AddSingleton<IAsyncBasicConsumerFactory, DefaultAsyncEventingBasicConsumerFactory>()
+            .AddSingleton(_rabbitMQErrorResolver)
+            .AddSingleton<IEventBusInstance>(sp =>
             {
                 IRabbitMQPublisher? publisher = _publisherEndPoints.Count > 0 ? ActivatorUtilities.CreateInstance<RabbitMQPublisher>(sp, _publisherEndPoints) : null;
                 IRabbitMQConsumerChannel? consumerChannel = _consumerEndPoints.Count > 0 ? ActivatorUtilities.CreateInstance<RabbitMQConsumerChannel>(sp, _consumerEndPoints) : null;
@@ -72,11 +82,12 @@ namespace Shared.RabbitMQ
 
                 if (args.Count == 0)
                 {
-                    throw RabbitMQConfigurationException.PublisherAndConsumerIsNull();
+                    ThrowHelper.PublisherAndConsumerNotDefined();
                 }
 
                 return ActivatorUtilities.CreateInstance<RabbitMQBusInstance>(sp, [.. args]);
-            });
+            })
+            .AddSingleton<IRabbitMQBusSender>(sp => (RabbitMQBusInstance)sp.GetServices<IEventBusInstance>().First(x => x.GetType() == typeof(RabbitMQBusInstance)));
         }
 
         internal void ReplaceService(ServiceDescriptor serviceDescriptor) => _services.Replace(serviceDescriptor);
