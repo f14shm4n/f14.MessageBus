@@ -7,12 +7,12 @@ namespace Shared.RabbitMQ.Internals
 {
     internal sealed class DefaultAsyncEventingBasicConsumer : AsyncEventingBasicConsumer
     {
-        private readonly ILogger<DefaultAsyncEventingBasicConsumer> _logger;
+        private readonly IRabbitMQErrorResolver _errorResolver;
         private readonly IMessageProcessor _messageProcessor;
 
-        public DefaultAsyncEventingBasicConsumer(ILogger<DefaultAsyncEventingBasicConsumer> logger, IMessageProcessor messageProcessor, IChannel channel) : base(channel)
+        public DefaultAsyncEventingBasicConsumer(IRabbitMQErrorResolver errorResolver, IMessageProcessor messageProcessor, IChannel channel) : base(channel)
         {
-            _logger = logger;
+            _errorResolver = errorResolver;
             _messageProcessor = messageProcessor;
 
             ReceivedAsync += DefaultAsyncEventingBasicConsumer_ReceivedAsync;
@@ -20,16 +20,25 @@ namespace Shared.RabbitMQ.Internals
 
         private async Task DefaultAsyncEventingBasicConsumer_ReceivedAsync(object sender, BasicDeliverEventArgs @event)
         {
+            ConsumerResolveAction action = ConsumerResolveAction.Ack;
             try
             {
                 await _messageProcessor.ProcessMessageAsync(@event.RoutingKey, @event.Body, @event.CancellationToken);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Cannot process message. RoutingKey: '{Key}'", @event.RoutingKey);
+                action = await _errorResolver.ResolveProcessingErrorAsync(@event.RoutingKey, @event.Body, ex, @event.CancellationToken);
             }
-            // TODO: Handle message if error has been occurred (Dead message exchange).
-            await Channel.BasicAckAsync(@event.DeliveryTag, multiple: false);
+
+            switch (action)
+            {
+                case ConsumerResolveAction.Ack:
+                    await Channel.BasicAckAsync(@event.DeliveryTag, multiple: false, @event.CancellationToken);
+                    break;
+                default:
+                    await Channel.BasicNackAsync(@event.DeliveryTag, multiple: false, requeue: false, @event.CancellationToken);
+                    break;
+            }
         }
     }
 }
