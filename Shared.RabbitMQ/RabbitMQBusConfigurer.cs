@@ -31,39 +31,19 @@ namespace Shared.RabbitMQ
 
         public RabbitMQBusConfigurer BasicProperties(Action<BasicProperties> configure)
         {
-            ArgumentNullException.ThrowIfNull(configure);
-
             configure(_basicPropertiesProvider.GetBasicProperties());
             return this;
         }
 
-        public RabbitMQBusConfigurer PublishEndPoint(string exchange, string queue, Action<IRabbitMQEndPoint> configure)
+        public RabbitMQBusConfigurer PublishEndPoint(Action<IRabbitMQExchangeConfigurer> configure)
         {
-            MapEndPoint(_publisherEndPoints, exchange, queue, configure);
+            configure(new RabbitMQExchangeConfigurer(_declarator, _publisherEndPoints));
             return this;
         }
 
-        public RabbitMQBusConfigurer PublishEndPoint<TMessage>(string exchange, string queue)
+        public RabbitMQBusConfigurer ConsumeEndPoint(Action<IRabbitMQExchangeConfigurer> configure)
         {
-            MapEndPoint<TMessage>(_publisherEndPoints, exchange, queue);
-            return this;
-        }
-
-        public RabbitMQBusConfigurer ConsumeEndPoint(string exchange, string queue, Action<IRabbitMQEndPoint> configure)
-        {
-            MapEndPoint(_consumerEndPoints, exchange, queue, configure);
-            return this;
-        }
-
-        public RabbitMQBusConfigurer ConsumeEndPoint<TMessage>(string exchange, string queue)
-        {
-            MapEndPoint<TMessage>(_consumerEndPoints, exchange, queue);
-            return this;
-        }
-
-        public RabbitMQBusConfigurer ReplaceAsyncBasicConsumerFactory<TFactoryImpl>() where TFactoryImpl : class, IAsyncBasicConsumerFactory
-        {
-            _services.Replace(ServiceDescriptor.Singleton<IAsyncBasicConsumerFactory, TFactoryImpl>());
+            configure(new RabbitMQExchangeConfigurer(_declarator, _consumerEndPoints));
             return this;
         }
 
@@ -81,11 +61,11 @@ namespace Shared.RabbitMQ
                 IRabbitMQConsumerChannel? consumerChannel = _consumerEndPoints.Count > 0 ? ActivatorUtilities.CreateInstance<RabbitMQConsumerChannel>(sp, _consumerEndPoints) : null;
 
                 var args = new List<object>();
-                if (publisher.IsNotNull())
+                if (publisher is not null)
                 {
                     args.Add(publisher);
                 }
-                if (consumerChannel.IsNotNull())
+                if (consumerChannel is not null)
                 {
                     args.Add(consumerChannel);
                 }
@@ -99,18 +79,6 @@ namespace Shared.RabbitMQ
             });
         }
 
-        private void MapEndPoint(RabbitMQEndPoints endPoints, string exchange, string queue, Action<IRabbitMQEndPoint> configure)
-        {
-            _declarator.DefaultExchangeDeclare(exchange);
-            _declarator.DefaultQueueDeclare(queue);
-            configure(endPoints.RegistedEndPoint(exchange, queue));
-        }
-
-        private void MapEndPoint<TMessage>(RabbitMQEndPoints endPoints, string exchange, string queue)
-        {
-            _declarator.DefaultExchangeDeclare(exchange);
-            _declarator.DefaultQueueDeclare(queue);
-            endPoints.RegistedEndPoint(exchange, queue).Message<TMessage>();
-        }
+        internal void ReplaceService(ServiceDescriptor serviceDescriptor) => _services.Replace(serviceDescriptor);
     }
 }

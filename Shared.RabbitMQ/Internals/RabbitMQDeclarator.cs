@@ -23,16 +23,6 @@ namespace Shared.RabbitMQ.Internals
             _queueDeclarations[queue] = (c, ct) => c.QueueDeclareAsync(queue, durable, exclusive, autoDelete, arguments, noWait, ct);
         }
 
-        public void DefaultExchangeDeclare(string exchange)
-        {
-            ExchangeDeclare(exchange, ExchangeType.Fanout, durable: true);
-        }
-
-        public void DefaultQueueDeclare(string queue)
-        {
-            QueueDeclare(queue, durable: true, exclusive: false, autoDelete: false);
-        }
-
         public IEnumerator<Func<IChannel, CancellationToken, Task>> GetEnumerator()
         {
             return ExchangeDeclarations.Concat(QueueDeclarations).GetEnumerator();
