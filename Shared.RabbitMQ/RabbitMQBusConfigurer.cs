@@ -63,7 +63,7 @@ namespace Shared.RabbitMQ
             .AddSingleton<IRabbitMQPersistentConnectionConfiguration>(_connectionConfig)
             .AddSingleton<IConnectionFactoryProvider>(_connectionFactoryProvider)
             .AddSingleton<IRabbitMQDeclarationCollection>(_declarator)
-            .AddSingleton<IAsyncBasicConsumerFactory, DefaultAsyncEventingBasicConsumerFactory>()
+            .AddSingleton<IAsyncBasicConsumerFactory, DefaultAsyncBasicConsumerFactory>()
             .AddSingleton(_rabbitMQErrorResolver)
             .AddSingleton<IEventBusInstance>(sp =>
             {

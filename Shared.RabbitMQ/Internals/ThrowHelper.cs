@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Shared.RabbitMQ
+namespace Shared.RabbitMQ.Internals
 {
     internal static class ThrowHelper
     {

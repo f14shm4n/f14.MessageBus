@@ -4,12 +4,12 @@ using Shared.EventBus;
 
 namespace Shared.RabbitMQ.Internals
 {
-    internal sealed class DefaultAsyncEventingBasicConsumerFactory : IAsyncBasicConsumerFactory
+    internal sealed class DefaultAsyncBasicConsumerFactory : IAsyncBasicConsumerFactory
     {
         private readonly IRabbitMQErrorResolver _errorResolver;
         private readonly IMessageProcessor _messageProcessor;
 
-        public DefaultAsyncEventingBasicConsumerFactory(IRabbitMQErrorResolver errorResolver, IMessageProcessor messageProcessor)
+        public DefaultAsyncBasicConsumerFactory(IRabbitMQErrorResolver errorResolver, IMessageProcessor messageProcessor)
         {
 
             _messageProcessor = messageProcessor;
@@ -18,7 +18,7 @@ namespace Shared.RabbitMQ.Internals
 
         public IAsyncBasicConsumer CreateAsyncBasicConsumer(IChannel channel)
         {
-            return new DefaultAsyncEventingBasicConsumer(_errorResolver, _messageProcessor, channel);
+            return new DefaultAsyncBasicConsumer(_errorResolver, _messageProcessor, channel);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Polly;
+﻿using Polly;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using Shared.EventBus;
