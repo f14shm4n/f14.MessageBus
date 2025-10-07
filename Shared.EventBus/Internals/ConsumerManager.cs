@@ -9,7 +9,7 @@
             _consumers = [];
         }
 
-        public int MessageTypesCount => _consumers.Count;
+        public int RegisteredMessageTypes => _consumers.Count;
 
         public int ConsumersCount => _consumers.Values.Select(x => x.Count).Sum();
 
