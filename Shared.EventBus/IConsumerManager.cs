@@ -2,7 +2,7 @@
 {
     public interface IConsumerManager
     {
-        int RegisteredMessageTypes { get; }
+        int MessageTypesCount { get; }
         int ConsumersCount { get; }
 
         Type? GetMessageTypeByName(string messageTypeName);
