@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Shared.EventBus\Shared.EventBus.csproj" />
+    <ProjectReference Include="..\..\src\f14.MessageBus\f14.MessageBus.csproj" />
   </ItemGroup>
 
 </Project>

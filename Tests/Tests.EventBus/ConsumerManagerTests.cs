@@ -1,6 +1,6 @@
+using f14.MessageBus;
+using f14.MessageBus.Internals;
 using FluentAssertions;
-using Shared.EventBus;
-using Shared.EventBus.Internals;
 using Tests.SharedResources.EventBus.Consumers;
 using Tests.SharedResources.EventBus.Messages;
 

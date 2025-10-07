@@ -31,9 +31,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\App.Constants\App.Constants.csproj" />
-    <ProjectReference Include="..\..\Shared.EventBus\Shared.EventBus.csproj" />
     <ProjectReference Include="..\..\Shared.RabbitMQ.App\Shared.RabbitMQ.App.csproj" />
-    <ProjectReference Include="..\..\Shared.RabbitMQ\Shared.RabbitMQ.csproj" />
+    <ProjectReference Include="..\..\src\f14.MessageBus.RabbitMQ\f14.MessageBus.RabbitMQ.csproj" />
+    <ProjectReference Include="..\..\src\f14.MessageBus\f14.MessageBus.csproj" />
     <ProjectReference Include="..\Tests.SharedResources\Tests.SharedResources.csproj" />
   </ItemGroup>
 

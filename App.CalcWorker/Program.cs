@@ -1,8 +1,7 @@
 using App.CalcWorker.Application.EventBus.Consumers;
-using Shared.EventBus;
-using Shared.RabbitMQ;
+using f14.MessageBus;
+using f14.MessageBus.RabbitMQ;
 using Shared.RabbitMQ.App;
-using Shared.RabbitMQ.Internals;
 
 namespace App.CalcWorker
 {

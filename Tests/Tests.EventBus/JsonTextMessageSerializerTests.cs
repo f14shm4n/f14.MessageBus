@@ -1,5 +1,5 @@
-﻿using FluentAssertions;
-using Shared.EventBus.Internals;
+﻿using f14.MessageBus.Internals;
+using FluentAssertions;
 using Tests.SharedResources.EventBus.Messages;
 
 namespace Tests.EventBus

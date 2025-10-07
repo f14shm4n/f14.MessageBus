@@ -1,13 +1,7 @@
-﻿using Shared.EventBus;
+﻿using f14.MessageBus;
 
 namespace App.CalcWorker.Application.EventBus.Consumers
 {
-    internal readonly record struct DummyConsumerMessage
-    {
-        public int Id { get; init; }
-        public string Description { get; init; }
-    }
-
     internal sealed class DummyConsumer : IConsumer<DummyConsumerMessage>
     {
         private readonly ILogger<DummyConsumer> _logger;

@@ -1,11 +1,11 @@
 ﻿using App.Constants;
+using f14.MessageBus.RabbitMQ;
+using f14.MessageBus.RabbitMQ.Internals;
 using f14.RetryPolly;
 using Microsoft.Extensions.Logging;
 using Moq;
 using RabbitMQ.Client;
-using Shared.RabbitMQ;
 using Shared.RabbitMQ.App;
-using Shared.RabbitMQ.Internals;
 using Testcontainers.RabbitMq;
 
 namespace Tests.RabbitMQ

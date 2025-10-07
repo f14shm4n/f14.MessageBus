@@ -1,4 +1,4 @@
-﻿using Shared.EventBus;
+﻿using f14.MessageBus;
 using Tests.SharedResources.EventBus.Messages;
 
 namespace Tests.SharedResources.EventBus.Consumers

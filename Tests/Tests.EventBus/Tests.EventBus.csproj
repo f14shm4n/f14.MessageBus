@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Shared.EventBus\Shared.EventBus.csproj" />
+    <ProjectReference Include="..\..\src\f14.MessageBus\f14.MessageBus.csproj" />
     <ProjectReference Include="..\Tests.SharedResources\Tests.SharedResources.csproj" />
   </ItemGroup>
 

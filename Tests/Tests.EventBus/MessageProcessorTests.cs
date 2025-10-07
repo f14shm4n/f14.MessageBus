@@ -1,8 +1,8 @@
-﻿using FluentAssertions;
+﻿using f14.MessageBus;
+using f14.MessageBus.Internals;
+using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using Shared.EventBus;
-using Shared.EventBus.Internals;
 using Tests.SharedResources.EventBus.Consumers;
 using Tests.SharedResources.EventBus.Messages;
 
