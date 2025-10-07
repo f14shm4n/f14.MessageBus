@@ -7,21 +7,33 @@ namespace Shared.EventBus.Internals
         private readonly IConsumerManager _consumerManager;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IMessageSerializer _messageSerializer;
+        private readonly IConsumerMetaFabric _consumerMetaFabric;
 
-        public MessageProcessor(IConsumerManager consumerManager, IServiceScopeFactory scopeFactory, IMessageSerializer messageSerializer)
+        public MessageProcessor(
+            IServiceScopeFactory scopeFactory,
+            IConsumerManager consumerManager,
+            IMessageSerializer messageSerializer,
+            IConsumerMetaFabric consumerMetaFabric)
         {
-            _consumerManager = consumerManager;
             _scopeFactory = scopeFactory;
+            _consumerManager = consumerManager;
             _messageSerializer = messageSerializer;
+            _consumerMetaFabric = consumerMetaFabric;
         }
 
         public async Task ProcessMessageAsync(string messageTypeName, ReadOnlyMemory<byte> messageBody, CancellationToken cancellationToken = default)
         {
-            var messageType = _consumerManager.GetMessageTypeByName(messageTypeName) ?? throw new InvalidOperationException($"Unknown message type name: '{messageTypeName}'. Make sure the message type name is registered in {nameof(IConsumerManager)}.");
+            // Check if message type is registered
+            var messageType = _consumerManager.GetMessageTypeByName(messageTypeName);
+            if (messageType == null)
+            {
+                ThrowHelper.UnknownMessageType(messageTypeName);
+            }
+            // Check if we have any consumer for the registered message
             _consumerManager.TryGetConsumers(messageType, out var consumerTypes);
             if (consumerTypes is null)
             {
-                throw new InvalidOperationException($"There are no registered consumers for given message type name: '{messageTypeName}'.");
+                ThrowHelper.NoRegisteredConsumers(messageTypeName);
             }
 
             using (var scope = _scopeFactory.CreateScope())
@@ -29,11 +41,12 @@ namespace Shared.EventBus.Internals
                 var message = _messageSerializer.Deserialize(messageBody.ToArray(), messageType);
                 foreach (var consumerType in consumerTypes)
                 {
-                    var consumer = ActivatorUtilities.CreateInstance(scope.ServiceProvider, consumerType);
-                    var concreteType = typeof(IConsumer<>).MakeGenericType(messageType);
-
-                    await Task.Yield();
-                    await (Task)concreteType.GetMethod(Constants.ConsumeAsyncMethodName)!.Invoke(consumer, [message, cancellationToken])!;
+                    // We using IDisposable to clear consumer instance after invoke
+                    using (var invoker = _consumerMetaFabric.GetInvoker(scope, consumerType, messageType))
+                    {
+                        await Task.Yield();
+                        await invoker.InvokeAsync([message, cancellationToken]);
+                    }
                 }
             }
         }

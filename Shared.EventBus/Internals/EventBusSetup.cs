@@ -16,6 +16,7 @@ namespace Shared.EventBus.Internals
             _services.AddSingleton<IConsumerManager>(_consumerManager);
             _services.AddSingleton<IMessageProcessor, MessageProcessor>();
             _services.AddSingleton<IMessageSerializer, JsonTextMessageSerializer>();
+            _services.AddSingleton<IConsumerMetaFabric, ConsumerMetaFabric>();
             // Non redefinable
             _services.AddHostedService<EventBusStartingHostedService>();
         }
