@@ -2,6 +2,7 @@ using App.CalcWorker.Application.EventBus.Consumers;
 using Shared.EventBus;
 using Shared.RabbitMQ;
 using Shared.RabbitMQ.App;
+using Shared.RabbitMQ.Internals;
 
 namespace App.CalcWorker
 {
@@ -25,14 +26,18 @@ namespace App.CalcWorker
                                     cf.Uri = new Uri(opts.ConnectionString);
                                     cc.RetryPolicy = opts.ConnectionRetryPolicy;
                                 })
+                                //.PublishEndPoint(ex =>
+                                //{
+                                //    ex
+                                //    .Exchange(opts.CalculatorExchange.Name, ExchangeType.Direct)
+                                //    .Queue(opts.CalculatorExchange.Queue)
+                                //    .EndPoint(ep => ep.Message<DummyConsumerMessage>());
+                                //})
                                 //.PublishEndPoint(opts.CalculatorExchange.Name, opts.CalculatorExchange.Queue, endpoint =>
                                 //{
                                 //    endpoint.Message<DummyConsumerMessage>();
                                 //})
-                                .ConsumeEndPoint(opts.CalculatorExchange.Name, opts.CalculatorExchange.Queue, endpoint =>
-                                {
-                                    endpoint.Message<DummyConsumerMessage>();
-                                });
+                                .ConsumeEndPoint<DummyConsumerMessage>(opts.CalculatorExchange.Name, opts.CalculatorExchange.Queue);
                         });
                 });
 
