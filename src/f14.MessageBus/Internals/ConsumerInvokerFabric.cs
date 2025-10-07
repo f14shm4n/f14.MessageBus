@@ -2,17 +2,17 @@
 
 namespace f14.MessageBus.Internals
 {
-    internal class ConsumerMetaFabric : IConsumerMetaFabric
+    internal class ConsumerInvokerFabric : IConsumerInvokerFabric
     {
-        private readonly Dictionary<Type, ConsumerMetaInvoker> _invokers = [];
+        private readonly Dictionary<Type, ConsumerInvoker> _invokers = [];
 
-        public ConsumerMetaInvoker GetInvoker(IServiceScope scope, Type consumerType, Type messageType)
+        public ConsumerInvoker GetInvoker(IServiceScope scope, Type consumerType, Type messageType)
         {
             var consumer = ActivatorUtilities.CreateInstance(scope.ServiceProvider, consumerType);
             // If the invoker has not yet been created
-            if (!_invokers.TryGetValue(consumerType, out ConsumerMetaInvoker? invoker))
+            if (!_invokers.TryGetValue(consumerType, out ConsumerInvoker? invoker))
             {
-                invoker = new ConsumerMetaInvoker(typeof(IConsumer<>).MakeGenericType(messageType).GetMethod(Constants.ConsumeAsyncMethodName)!);
+                invoker = new ConsumerInvoker(typeof(IConsumer<>).MakeGenericType(messageType).GetMethod(Constants.ConsumeAsyncMethodName)!);
                 _invokers[consumerType] = invoker;
             }
             // Do not forget to set the consumer instance to the invoker

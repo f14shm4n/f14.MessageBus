@@ -2,16 +2,7 @@
 {
     internal sealed class ConsumerManager : IConsumerManager
     {
-        private readonly Dictionary<Type, List<Type>> _consumers;
-
-        public ConsumerManager()
-        {
-            _consumers = [];
-        }
-
-        public int MessageTypesCount => _consumers.Count;
-
-        public int ConsumersCount => _consumers.Values.Select(x => x.Count).Sum();
+        private readonly Dictionary<Type, List<Type>> _consumers = [];
 
         public bool TryAdd<TMessage, TConsumer>()
             where TConsumer : IConsumer<TMessage>

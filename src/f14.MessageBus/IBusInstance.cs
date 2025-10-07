@@ -1,6 +1,6 @@
 ﻿namespace f14.MessageBus
 {
-    public interface IEventBusInstance
+    public interface IBusInstance
     {
         Task StartAsync(CancellationToken cancellationToken = default);
         Task StopAsync(CancellationToken cancellationToken = default);

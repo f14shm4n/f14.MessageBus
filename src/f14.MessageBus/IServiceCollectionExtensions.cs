@@ -5,10 +5,10 @@ namespace f14.MessageBus
 {
     public static class IServiceCollectionExtensions
     {
-        public static IServiceCollection AddEventBus(this IServiceCollection services, Action<IEventBusSetup> configure)
+        public static IServiceCollection AddMessageBus(this IServiceCollection services, Action<IBusInitializer> configure)
         {
-            var setup = new EventBusSetup(services);
-            configure(setup);
+            var initializer = new BusInitializer(services);
+            configure(initializer);
             return services;
         }
     }

@@ -3,7 +3,7 @@ using RabbitMQ.Client;
 
 namespace f14.MessageBus.RabbitMQ.Internals
 {
-    internal sealed class RabbitMQBusInstance : IEventBusInstance, IRabbitMQBusSender
+    internal sealed class RabbitMQBusInstance : IBusInstance, IRabbitMQBusSender
     {
         private readonly ILogger<RabbitMQBusInstance> _logger;
         private readonly IRabbitMQPersistentConnection _connection;
@@ -59,13 +59,13 @@ namespace f14.MessageBus.RabbitMQ.Internals
 
         public async Task StartAsync(CancellationToken cancellationToken = default)
         {
-            _logger.LogInformation("Starting RabbitMQ event bus instance.");
+            _logger.LogInformation("Starting RabbitMQ bus instance.");
 
             // 0. Open RabbitMQ connection
             await _connection.TryConnectAsync(cancellationToken);
             if (!_connection.IsConnected)
             {
-                _logger.LogCritical("CRITICAL: The RabbitMQ event bus instance is not running. Unable to establish connection with RabbitMQ host.");
+                _logger.LogCritical("CRITICAL: The RabbitMQ bus instance is not running. Unable to establish connection with RabbitMQ host.");
                 return;
             }
             // 1. Apply declarations
@@ -84,7 +84,7 @@ namespace f14.MessageBus.RabbitMQ.Internals
                 await ApplyConfiguratorsAsync(_connection, _consumerChannel.EndPoints.SelectMany(x => x.Bindings), cancellationToken);
                 await _consumerChannel.TryOpenAsync(cancellationToken);
             }
-            _logger.LogInformation("The RabbitMQ event bus instance has started.");
+            _logger.LogInformation("The RabbitMQ bus instance has started.");
         }
 
         public Task StopAsync(CancellationToken cancellationToken = default)

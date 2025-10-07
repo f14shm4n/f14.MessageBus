@@ -3,12 +3,12 @@ using System.Reflection;
 
 namespace f14.MessageBus
 {
-    public sealed class ConsumerMetaInvoker : IDisposable
+    public sealed class ConsumerInvoker : IDisposable
     {
         private readonly MethodInfo _method;
         private object? _instance;
 
-        public ConsumerMetaInvoker(MethodInfo method)
+        public ConsumerInvoker(MethodInfo method)
         {
             _method = method;
         }

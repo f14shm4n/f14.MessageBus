@@ -2,6 +2,6 @@
 {
     public interface IRabbitMQErrorResolver
     {
-        Task<ConsumerResolveAction> ResolveProcessingErrorAsync(string routingKey, ReadOnlyMemory<byte> body, Exception error, CancellationToken cancellationToken = default);
+        Task<ConsumerResolveAction> ResolveProcessingErrorAsync(string routingKey, ReadOnlyMemory<byte> body, Exception exception, CancellationToken cancellationToken = default);
     }
 }

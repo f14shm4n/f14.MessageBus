@@ -15,14 +15,8 @@ namespace Tests.EventBus
         {
             var manager = CreateManager();
 
-            manager.MessageTypesCount.Should().Be(0);
-            manager.ConsumersCount.Should().Be(0);
-
             manager.TryAdd<Int32Message, Int32MessageConsumer>().Should().BeTrue();
             manager.TryAdd<Int32Message, AnotherInt32MessageConsumer>().Should().BeTrue();
-
-            manager.MessageTypesCount.Should().Be(1);
-            manager.ConsumersCount.Should().Be(2);
 
             manager.TryGetConsumers(typeof(Int32Message), out var consumers);
             consumers.Should().NotBeNull();
@@ -34,14 +28,8 @@ namespace Tests.EventBus
         {
             var manager = CreateManager();
 
-            manager.MessageTypesCount.Should().Be(0);
-            manager.ConsumersCount.Should().Be(0);
-
             manager.TryAdd<Int32Message, Int32MessageConsumer>().Should().BeTrue();
             manager.TryAdd<StringMessage, StringMessageConsumer>().Should().BeTrue();
-
-            manager.MessageTypesCount.Should().Be(2);
-            manager.ConsumersCount.Should().Be(2);
 
             manager.TryGetConsumers(typeof(Int32Message), out var consumers);
             consumers.Should().NotBeNull();
@@ -57,9 +45,6 @@ namespace Tests.EventBus
         {
             var manager = CreateManager();
 
-            manager.MessageTypesCount.Should().Be(0);
-            manager.ConsumersCount.Should().Be(0);
-
             manager.TryAdd<Int32Message, Int32MessageConsumer>().Should().BeTrue();
             manager.TryAdd<Int32Message, Int32MessageConsumer>().Should().BeFalse();
         }
@@ -73,9 +58,6 @@ namespace Tests.EventBus
         {
             var manager = CreateManager();
 
-            manager.MessageTypesCount.Should().Be(0);
-            manager.ConsumersCount.Should().Be(0);
-
             manager.GetMessageTypeByName(typeof(Int32Message).Name).Should().BeNull();
         }
 
@@ -83,9 +65,6 @@ namespace Tests.EventBus
         public void GetMessageTypeByName_NotEmpty()
         {
             var manager = CreateManager();
-
-            manager.MessageTypesCount.Should().Be(0);
-            manager.ConsumersCount.Should().Be(0);
 
             manager.TryAdd<Int32Message, Int32MessageConsumer>().Should().BeTrue();
             manager.TryAdd<StringMessage, StringMessageConsumer>().Should().BeTrue();

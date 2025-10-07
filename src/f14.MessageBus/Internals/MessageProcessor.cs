@@ -7,13 +7,13 @@ namespace f14.MessageBus.Internals
         private readonly IConsumerManager _consumerManager;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IMessageSerializer _messageSerializer;
-        private readonly IConsumerMetaFabric _consumerMetaFabric;
+        private readonly IConsumerInvokerFabric _consumerMetaFabric;
 
         public MessageProcessor(
             IServiceScopeFactory scopeFactory,
             IConsumerManager consumerManager,
             IMessageSerializer messageSerializer,
-            IConsumerMetaFabric consumerMetaFabric)
+            IConsumerInvokerFabric consumerMetaFabric)
         {
             _scopeFactory = scopeFactory;
             _consumerManager = consumerManager;

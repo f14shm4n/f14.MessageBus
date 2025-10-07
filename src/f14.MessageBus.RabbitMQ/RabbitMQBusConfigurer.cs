@@ -48,7 +48,7 @@ namespace f14.MessageBus.RabbitMQ
 
         public RabbitMQBusConfigurer SetErrorResolver(IRabbitMQErrorResolver errorResolver)
         {
-            ArgumentNullException.ThrowIfNull(nameof(errorResolver));
+            ArgumentNullException.ThrowIfNull(errorResolver);
 
             _rabbitMQErrorResolver = errorResolver;
             return this;
@@ -63,7 +63,7 @@ namespace f14.MessageBus.RabbitMQ
             .AddSingleton<IRabbitMQDeclarationCollection>(_declarator)
             .AddSingleton<IAsyncBasicConsumerFactory, DefaultAsyncBasicConsumerFactory>()
             .AddSingleton(_rabbitMQErrorResolver)
-            .AddSingleton<IEventBusInstance>(sp =>
+            .AddSingleton<IBusInstance>(sp =>
             {
                 IRabbitMQPublisher? publisher = _publisherEndPoints.Count > 0 ? ActivatorUtilities.CreateInstance<RabbitMQPublisher>(sp, _publisherEndPoints) : null;
                 IRabbitMQConsumerChannel? consumerChannel = _consumerEndPoints.Count > 0 ? ActivatorUtilities.CreateInstance<RabbitMQConsumerChannel>(sp, _consumerEndPoints) : null;
@@ -85,7 +85,7 @@ namespace f14.MessageBus.RabbitMQ
 
                 return ActivatorUtilities.CreateInstance<RabbitMQBusInstance>(sp, [.. args]);
             })
-            .AddSingleton<IRabbitMQBusSender>(sp => (RabbitMQBusInstance)sp.GetServices<IEventBusInstance>().First(x => x.GetType() == typeof(RabbitMQBusInstance)));
+            .AddSingleton<IRabbitMQBusSender>(sp => (RabbitMQBusInstance)sp.GetServices<IBusInstance>().First(x => x.GetType() == typeof(RabbitMQBusInstance)));
         }
 
         internal void ReplaceService(ServiceDescriptor serviceDescriptor) => _services.Replace(serviceDescriptor);

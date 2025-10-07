@@ -3,32 +3,32 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace f14.MessageBus.Internals
 {
-    internal sealed class EventBusSetup : IEventBusSetup
+    internal sealed class BusInitializer : IBusInitializer
     {
         private readonly IServiceCollection _services;
         private readonly ConsumerManager _consumerManager = new();
 
-        public EventBusSetup(IServiceCollection services)
+        public BusInitializer(IServiceCollection services)
         {
             _services = services;
             // TODO: Some classes should be redefinable
-            // Redefinable
+            // Redefinable?
             _services.AddSingleton<IConsumerManager>(_consumerManager);
             _services.AddSingleton<IMessageProcessor, MessageProcessor>();
             _services.AddSingleton<IMessageSerializer, JsonTextMessageSerializer>();
-            _services.AddSingleton<IConsumerMetaFabric, ConsumerMetaFabric>();
+            _services.AddSingleton<IConsumerInvokerFabric, ConsumerInvokerFabric>();
             // Non redefinable
-            _services.AddHostedService<EventBusStartingHostedService>();
+            _services.AddHostedService<MessageBusStartingHostedService>();
         }
 
-        public IEventBusSetup Consume<TMessage, TConsumer>()
+        public IBusInitializer Consume<TMessage, TConsumer>()
             where TConsumer : IConsumer<TMessage>
         {
             _consumerManager.TryAdd<TMessage, TConsumer>();
             return this;
         }
 
-        public IEventBusSetup UseEventBus<TBusConfigurer>(Action<TBusConfigurer> configure) where TBusConfigurer : IBusConfigurer
+        public IBusInitializer UseBus<TBusConfigurer>(Action<TBusConfigurer> configure) where TBusConfigurer : IBusConfigurer
         {
             var configurer = (TBusConfigurer)Activator.CreateInstance(typeof(TBusConfigurer), _services)!;
             configure(configurer);
@@ -36,7 +36,7 @@ namespace f14.MessageBus.Internals
             return this;
         }
 
-        public IEventBusSetup ReplaceMessageSerializer<TMessageSerializerImpl>() where TMessageSerializerImpl : class, IMessageSerializer
+        public IBusInitializer ReplaceMessageSerializer<TMessageSerializerImpl>() where TMessageSerializerImpl : class, IMessageSerializer
         {
             _services.Replace(ServiceDescriptor.Singleton<IMessageSerializer, TMessageSerializerImpl>());
             return this;
