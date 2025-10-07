@@ -1,8 +1,7 @@
-﻿using f14.MessageBus;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Shared.EventBus
+namespace f14.MessageBus.Internals
 {
     internal sealed class EventBusStartingHostedService : IHostedService
     {

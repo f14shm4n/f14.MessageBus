@@ -1,7 +1,6 @@
 ﻿using Polly;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
-using Shared.EventBus;
 using System.Net.Sockets;
 
 namespace f14.MessageBus.RabbitMQ.Internals
