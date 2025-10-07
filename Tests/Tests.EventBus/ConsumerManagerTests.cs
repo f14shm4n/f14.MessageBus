@@ -15,13 +15,13 @@ namespace Tests.EventBus
         {
             var manager = CreateManager();
 
-            manager.RegisteredMessageTypes.Should().Be(0);
+            manager.MessageTypesCount.Should().Be(0);
             manager.ConsumersCount.Should().Be(0);
 
             manager.TryAdd<Int32Message, Int32MessageConsumer>().Should().BeTrue();
             manager.TryAdd<Int32Message, AnotherInt32MessageConsumer>().Should().BeTrue();
 
-            manager.RegisteredMessageTypes.Should().Be(1);
+            manager.MessageTypesCount.Should().Be(1);
             manager.ConsumersCount.Should().Be(2);
 
             manager.TryGetConsumers(typeof(Int32Message), out var consumers);
@@ -34,13 +34,13 @@ namespace Tests.EventBus
         {
             var manager = CreateManager();
 
-            manager.RegisteredMessageTypes.Should().Be(0);
+            manager.MessageTypesCount.Should().Be(0);
             manager.ConsumersCount.Should().Be(0);
 
             manager.TryAdd<Int32Message, Int32MessageConsumer>().Should().BeTrue();
             manager.TryAdd<StringMessage, StringMessageConsumer>().Should().BeTrue();
 
-            manager.RegisteredMessageTypes.Should().Be(2);
+            manager.MessageTypesCount.Should().Be(2);
             manager.ConsumersCount.Should().Be(2);
 
             manager.TryGetConsumers(typeof(Int32Message), out var consumers);
@@ -57,7 +57,7 @@ namespace Tests.EventBus
         {
             var manager = CreateManager();
 
-            manager.RegisteredMessageTypes.Should().Be(0);
+            manager.MessageTypesCount.Should().Be(0);
             manager.ConsumersCount.Should().Be(0);
 
             manager.TryAdd<Int32Message, Int32MessageConsumer>().Should().BeTrue();
@@ -73,7 +73,7 @@ namespace Tests.EventBus
         {
             var manager = CreateManager();
 
-            manager.RegisteredMessageTypes.Should().Be(0);
+            manager.MessageTypesCount.Should().Be(0);
             manager.ConsumersCount.Should().Be(0);
 
             manager.GetMessageTypeByName(typeof(Int32Message).Name).Should().BeNull();
@@ -84,7 +84,7 @@ namespace Tests.EventBus
         {
             var manager = CreateManager();
 
-            manager.RegisteredMessageTypes.Should().Be(0);
+            manager.MessageTypesCount.Should().Be(0);
             manager.ConsumersCount.Should().Be(0);
 
             manager.TryAdd<Int32Message, Int32MessageConsumer>().Should().BeTrue();
