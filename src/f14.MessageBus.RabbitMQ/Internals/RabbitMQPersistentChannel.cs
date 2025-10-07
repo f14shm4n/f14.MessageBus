@@ -37,7 +37,8 @@ namespace f14.MessageBus.RabbitMQ.Internals
                 _channel = await _connection.CreateChannelAsync(cancellationToken);
                 if (IsOpen)
                 {
-                    _logger.LogTrace("Created new RabbitMQ persistent channel.");
+                    // TODO: add metric
+                    //_logger.LogTrace("Created new RabbitMQ persistent channel.");
                     _channel.CallbackExceptionAsync += Channel_CallbackExceptionAsync;
 
                     await OnChannelCreatedAsync(_channel, cancellationToken);
@@ -46,7 +47,7 @@ namespace f14.MessageBus.RabbitMQ.Internals
             }
             catch (Exception ex)
             {
-                _logger.LogCritical(ex, "FATAL: Failed to open RabbitMQ channel.");
+                _logger.LogUnableToOpenChannel(ex);
             }
             finally
             {
@@ -67,7 +68,7 @@ namespace f14.MessageBus.RabbitMQ.Internals
 
         private async Task Channel_CallbackExceptionAsync(object sender, global::RabbitMQ.Client.Events.CallbackExceptionEventArgs @event)
         {
-            _logger.LogWarning("RabbitMQ channel threw an exception. Recreating channel...");
+            _logger.LogChannelCallbackException();
 
             if (_channel is not null)
             {
@@ -118,5 +119,14 @@ namespace f14.MessageBus.RabbitMQ.Internals
         }
 
         #endregion
+    }
+
+    internal static partial class LoggerExtensions
+    {
+        [LoggerMessage(Level = LogLevel.Critical, Message = "FATAL: Failed to open RabbitMQ channel.")]
+        public static partial void LogUnableToOpenChannel(this ILogger logger, Exception exception);
+
+        [LoggerMessage(Level = LogLevel.Warning, Message = "RabbitMQ channel threw an exception. Recreating channel...")]
+        public static partial void LogChannelCallbackException(this ILogger logger);
     }
 }

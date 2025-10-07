@@ -52,14 +52,14 @@ namespace f14.MessageBus.RabbitMQ.Internals
                     .Or<BrokerUnreachableException>()
                     .WaitAndRetryAsync(_config.RetryPolicy.RetryCount, _config.RetryPolicy.CalculateDelay, (ex, time) =>
                     {
-                        _logger.LogWarning(ex, "RabbitMQ client failed to establish connection {Time} sec. ({Error})", $"{time.TotalSeconds:n0}", ex.Message);
+                        _logger.LogRetryFailedToEstablishConnection(time.TotalSeconds, ex.Message);
                     });
 
                 await polly.ExecuteAsync(async ct => _connection = await _connectionFactory.CreateConnectionAsync(ct), cancellationToken);
 
                 if (!IsConnected)
                 {
-                    _logger.LogCritical("FATAL: Cannot create and open new RabbitMQ connection.");
+                    _logger.LogCannotCreateOrOpenConnection();
                     return false;
                 }
 
@@ -67,7 +67,7 @@ namespace f14.MessageBus.RabbitMQ.Internals
                 _connection.ConnectionShutdownAsync += Connection_ConnectionShutdownAsync;
                 _connection.ConnectionBlockedAsync += Connection_ConnectionBlockedAsync;
 
-                _logger.LogInformation("The RabbitMQ client established a new connection to '{HostName}'.", _connection.Endpoint.HostName);
+                _logger.LogConnectionEstablished(_connection.Endpoint.HostName);
                 return true;
             }
             finally
@@ -80,21 +80,21 @@ namespace f14.MessageBus.RabbitMQ.Internals
 
         private async Task Connection_ConnectionBlockedAsync(object sender, ConnectionBlockedEventArgs @event)
         {
-            _logger.LogWarning("RabbitMQ connection blocked. Reconnecting...");
+            _logger.LogConnectionBlocked();
 
             await TryConnectAsync(@event.CancellationToken);
         }
 
         private async Task Connection_ConnectionShutdownAsync(object sender, ShutdownEventArgs @event)
         {
-            _logger.LogWarning("RabbitMQ connection shutdown. Reconnecting...");
+            _logger.LogConnectionShutdown();
 
             await TryConnectAsync(@event.CancellationToken);
         }
 
         private async Task Connection_CallbackExceptionAsync(object sender, CallbackExceptionEventArgs @event)
         {
-            _logger.LogWarning("RabbitMQ connection threw an exception. Reconnecting...");
+            _logger.LogConnectionCallbackException();
 
             await TryConnectAsync(@event.CancellationToken);
         }
@@ -141,5 +141,26 @@ namespace f14.MessageBus.RabbitMQ.Internals
         }
 
         #endregion
+    }
+
+    internal static partial class LoggerExtensions
+    {
+        [LoggerMessage(Level = LogLevel.Warning, Message = "RabbitMQ client failed to establish connection {Time:n0} sec. Error: '{Error}'.")]
+        public static partial void LogRetryFailedToEstablishConnection(this ILogger logger, double time, string error);
+
+        [LoggerMessage(Level = LogLevel.Critical, Message = "FATAL: Cannot create or open new RabbitMQ connection.")]
+        public static partial void LogCannotCreateOrOpenConnection(this ILogger logger);
+
+        [LoggerMessage(Level = LogLevel.Information, Message = "The RabbitMQ client established a new connection to '{Host}'.")]
+        public static partial void LogConnectionEstablished(this ILogger logger, string host);
+
+        [LoggerMessage(Level = LogLevel.Warning, Message = "RabbitMQ connection blocked. Reconnecting...")]
+        public static partial void LogConnectionBlocked(this ILogger logger);
+
+        [LoggerMessage(Level = LogLevel.Warning, Message = "RabbitMQ connection shutdown. Reconnecting...")]
+        public static partial void LogConnectionShutdown(this ILogger logger);
+
+        [LoggerMessage(Level = LogLevel.Warning, Message = "RabbitMQ connection threw an exception. Reconnecting...")]
+        public static partial void LogConnectionCallbackException(this ILogger logger);
     }
 }

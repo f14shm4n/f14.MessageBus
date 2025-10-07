@@ -59,38 +59,41 @@ namespace f14.MessageBus.RabbitMQ.Internals
 
         public async Task StartAsync(CancellationToken cancellationToken = default)
         {
-            _logger.LogInformation("Starting RabbitMQ bus instance.");
+            _logger.LogStartBusInstance();
 
-            // 0. Open RabbitMQ connection
+            // Open RabbitMQ connection
             await _connection.TryConnectAsync(cancellationToken);
             if (!_connection.IsConnected)
             {
-                _logger.LogCritical("CRITICAL: The RabbitMQ bus instance is not running. Unable to establish connection with RabbitMQ host.");
+                _logger.LogCannotStartBusInstance();
                 return;
             }
-            // 1. Apply declarations
+            // Apply declarations
             if (_declarations.Count > 0)
             {
                 await ApplyConfiguratorsAsync(_connection, _declarations, cancellationToken);
             }
-            // 2. Apply bindings from publisher
+            // Apply bindings from publisher
             if (_publisher is not null)
             {
                 await ApplyConfiguratorsAsync(_connection, _publisher.EndPoints.SelectMany(x => x.Bindings), cancellationToken);
             }
-            // 2. Apply bindings from consumer and start consuming
+            // Apply bindings from consumer and start consuming
             if (_consumerChannel is not null)
             {
                 await ApplyConfiguratorsAsync(_connection, _consumerChannel.EndPoints.SelectMany(x => x.Bindings), cancellationToken);
                 await _consumerChannel.TryOpenAsync(cancellationToken);
             }
-            _logger.LogInformation("The RabbitMQ bus instance has started.");
+
+            _logger.LogBusInstanceStarted();
         }
 
-        public Task StopAsync(CancellationToken cancellationToken = default)
+        public async Task StopAsync(CancellationToken cancellationToken = default)
         {
-            // TODO: Dispose all disposable objects here or implement IDisposable
-            return Task.CompletedTask;
+            if (_consumerChannel != null)
+            {
+                await _consumerChannel.DisposeAsync();
+            }
         }
 
         private static async Task ApplyConfiguratorsAsync(IRabbitMQPersistentConnection connection, IEnumerable<Func<IChannel, CancellationToken, Task>> items, CancellationToken cancellationToken = default)
@@ -103,5 +106,17 @@ namespace f14.MessageBus.RabbitMQ.Internals
                 }
             }
         }
+    }
+
+    internal static partial class LoggerExtensions
+    {
+        [LoggerMessage(Level = LogLevel.Information, Message = "Starting RabbitMQ bus instance.")]
+        public static partial void LogStartBusInstance(this ILogger logger);
+
+        [LoggerMessage(Level = LogLevel.Critical, Message = "CRITICAL: Cannot start RabbitMQ bus instance. Unable to establish connection with RabbitMQ host.")]
+        public static partial void LogCannotStartBusInstance(this ILogger logger);
+
+        [LoggerMessage(Level = LogLevel.Information, Message = "The RabbitMQ bus instance has started.")]
+        public static partial void LogBusInstanceStarted(this ILogger logger);
     }
 }

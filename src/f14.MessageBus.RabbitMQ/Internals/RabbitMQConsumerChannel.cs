@@ -32,7 +32,7 @@ namespace f14.MessageBus.RabbitMQ.Internals
 
         protected override async Task OnChannelCreatedAsync(IChannel channel, CancellationToken cancellationToken = default)
         {
-            Logger.LogTrace("Starting RabbitMQ consume.");
+            Logger.LogStartConsuming();
 
             var consumer = _asyncBasicConsumerFactory.CreateAsyncBasicConsumer(channel);
             foreach (var name in _endPoints.Select(x => x.Queue).ToHashSet())
@@ -44,5 +44,11 @@ namespace f14.MessageBus.RabbitMQ.Internals
                     cancellationToken: cancellationToken);
             }
         }
+    }
+
+    internal static partial class LoggerExtensions
+    {
+        [LoggerMessage(Level = LogLevel.Trace, Message = "Starting RabbitMQ consume.")]
+        public static partial void LogStartConsuming(this ILogger logger);
     }
 }
