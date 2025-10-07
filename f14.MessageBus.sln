@@ -3,12 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App.WepApi", "App.WepApi\App.WepApi.csproj", "{79A8551D-4A61-4113-B011-F4FC8D22E0FE}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App.CalcWorker", "App.CalcWorker\App.CalcWorker.csproj", "{0729B012-9122-47DA-B0EA-CDADD10D5C4D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.RabbitMQ.App", "Shared.RabbitMQ.App\Shared.RabbitMQ.App.csproj", "{7E9B5BA9-221E-4E0E-9B4F-70CEF40E7D6A}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{36D591C7-65C7-A0D1-1CBC-10CDE441BDC8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.RabbitMQ", "Tests\Tests.RabbitMQ\Tests.RabbitMQ.csproj", "{9DFC81B3-0A7A-4DE2-BB56-EF2A1B1C798A}"
@@ -16,8 +10,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.SharedResources", "Tests\Tests.SharedResources\Tests.SharedResources.csproj", "{326F2D22-B65F-4536-87C4-3612146B8E05}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.EventBus", "Tests\Tests.EventBus\Tests.EventBus.csproj", "{56809DF3-DC30-4EAF-82F0-E6D301701BDE}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App.Constants", "App.Constants\App.Constants.csproj", "{E2999E0D-EED1-4BB0-B3AE-8833FC2E6CAF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{E7A16E79-E325-473D-B3C7-AFCAE292F6B4}"
 EndProject
@@ -35,18 +27,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{79A8551D-4A61-4113-B011-F4FC8D22E0FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{79A8551D-4A61-4113-B011-F4FC8D22E0FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{79A8551D-4A61-4113-B011-F4FC8D22E0FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{79A8551D-4A61-4113-B011-F4FC8D22E0FE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0729B012-9122-47DA-B0EA-CDADD10D5C4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0729B012-9122-47DA-B0EA-CDADD10D5C4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0729B012-9122-47DA-B0EA-CDADD10D5C4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0729B012-9122-47DA-B0EA-CDADD10D5C4D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7E9B5BA9-221E-4E0E-9B4F-70CEF40E7D6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7E9B5BA9-221E-4E0E-9B4F-70CEF40E7D6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7E9B5BA9-221E-4E0E-9B4F-70CEF40E7D6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7E9B5BA9-221E-4E0E-9B4F-70CEF40E7D6A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9DFC81B3-0A7A-4DE2-BB56-EF2A1B1C798A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9DFC81B3-0A7A-4DE2-BB56-EF2A1B1C798A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DFC81B3-0A7A-4DE2-BB56-EF2A1B1C798A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -59,10 +39,6 @@ Global
 		{56809DF3-DC30-4EAF-82F0-E6D301701BDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56809DF3-DC30-4EAF-82F0-E6D301701BDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56809DF3-DC30-4EAF-82F0-E6D301701BDE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E2999E0D-EED1-4BB0-B3AE-8833FC2E6CAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E2999E0D-EED1-4BB0-B3AE-8833FC2E6CAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E2999E0D-EED1-4BB0-B3AE-8833FC2E6CAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E2999E0D-EED1-4BB0-B3AE-8833FC2E6CAF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EC84F95D-FC09-24D3-82AC-9E216A9B0D38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EC84F95D-FC09-24D3-82AC-9E216A9B0D38}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC84F95D-FC09-24D3-82AC-9E216A9B0D38}.Release|Any CPU.ActiveCfg = Release|Any CPU

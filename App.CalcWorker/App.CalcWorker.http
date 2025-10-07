@@ -1,6 +1,0 @@
-@App.CalcWorker_HostAddress = http://localhost:5086
-
-GET {{App.CalcWorker_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
