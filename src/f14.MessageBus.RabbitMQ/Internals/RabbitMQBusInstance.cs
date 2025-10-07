@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
-using Shared.EventBus;
 
 namespace f14.MessageBus.RabbitMQ.Internals
 {

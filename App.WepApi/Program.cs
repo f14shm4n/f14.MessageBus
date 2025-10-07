@@ -1,8 +1,3 @@
-using App.Constants;
-using Shared.EventBus;
-using Shared.RabbitMQ;
-using Shared.RabbitMQ.App;
-
 namespace App.WepApi
 {
     public class Program
