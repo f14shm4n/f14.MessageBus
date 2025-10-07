@@ -1,4 +1,4 @@
-﻿using Shared.Commons.Options.Polly;
+﻿using f14.RetryPolly;
 
 namespace Shared.RabbitMQ
 {
@@ -8,6 +8,6 @@ namespace Shared.RabbitMQ
         /// 
         /// </summary>
         /// <exception cref="ArgumentNullException">Throws an exception when attempting to set a null value.</exception>
-        RetryPolicyOptions RetryPolicy { get; set; }
+        RetryPolicyInfo RetryPolicy { get; set; }
     }
 }

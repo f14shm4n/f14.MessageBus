@@ -1,12 +1,12 @@
-﻿using Shared.Commons.Options.Polly;
+﻿using f14.RetryPolly;
 
 namespace Shared.RabbitMQ.App
 {
     public sealed class RabbitMQAppOptions
     {
         public string ConnectionString { get; set; } = string.Empty;
-        public RetryPolicyOptions ConnectionRetryPolicy { get; set; } = new RetryPolicyOptions();
+        public RetryPolicyInfo ConnectionRetryPolicy { get; set; } = new RetryPolicyInfo();
         public RabbitMQExchangeOptions CalculatorExchange { get; set; } = new RabbitMQExchangeOptions();
-        public RetryPolicyOptions PublishRetryPolicy { get; set; } = new RetryPolicyOptions();
+        public RetryPolicyInfo PublishRetryPolicy { get; set; } = new RetryPolicyInfo();
     }
 }

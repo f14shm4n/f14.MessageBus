@@ -16,8 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Shared.Commons\Shared.Commons.csproj" />
     <ProjectReference Include="..\Shared.EventBus\Shared.EventBus.csproj" />
+    <ProjectReference Include="..\shared\src\f14.Common\f14.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

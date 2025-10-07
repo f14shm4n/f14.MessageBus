@@ -1,8 +1,8 @@
 ﻿using App.Constants;
+using f14.RetryPolly;
 using Microsoft.Extensions.Logging;
 using Moq;
 using RabbitMQ.Client;
-using Shared.Commons.Options.Polly;
 using Shared.RabbitMQ;
 using Shared.RabbitMQ.App;
 using Shared.RabbitMQ.Internals;
@@ -42,7 +42,7 @@ namespace Tests.RabbitMQ
                     Name = AppConstants.CalculatorExchangeName,
                     Queue = AppConstants.CalculatorQueueName
                 },
-                ConnectionRetryPolicy = new RetryPolicyOptions
+                ConnectionRetryPolicy = new RetryPolicyInfo
                 {
                     RetryCount = 1,
                     RetryDelayInMilliseconds = 500

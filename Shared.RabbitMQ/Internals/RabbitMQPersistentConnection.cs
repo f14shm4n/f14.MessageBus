@@ -1,10 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using f14.RetryPolly;
+using Microsoft.Extensions.Logging;
 using Polly;
-using Polly.Retry;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
-using Shared.Commons.Options.Polly;
 using System.Net.Sockets;
 
 namespace Shared.RabbitMQ.Internals

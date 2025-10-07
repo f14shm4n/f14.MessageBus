@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using RabbitMQ.Client;
-using Shared.Commons;
 using Shared.EventBus;
 using Shared.RabbitMQ.Internals;
 

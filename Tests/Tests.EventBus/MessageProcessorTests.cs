@@ -46,7 +46,7 @@ namespace Tests.EventBus
 
         private IMessageProcessor GetMessageProcessor()
         {
-            return new MessageProcessor(_scopeFactory, _consumerManager, _messageSerializer);
+            return new MessageProcessor(_scopeFactory, _consumerManager, _messageSerializer, new ConsumerMetaFabric());
         }
     }
 }

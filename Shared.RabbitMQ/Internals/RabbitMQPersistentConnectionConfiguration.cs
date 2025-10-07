@@ -1,12 +1,12 @@
-﻿using Shared.Commons.Options.Polly;
+﻿using f14.RetryPolly;
 
 namespace Shared.RabbitMQ.Internals
 {
     internal sealed class RabbitMQPersistentConnectionConfiguration : IRabbitMQPersistentConnectionConfiguration
     {
-        private RetryPolicyOptions _retryPolicyOptions = new();
+        private RetryPolicyInfo _retryPolicyOptions = new();
 
-        public RetryPolicyOptions RetryPolicy
+        public RetryPolicyInfo RetryPolicy
         {
             get => _retryPolicyOptions;
             set
