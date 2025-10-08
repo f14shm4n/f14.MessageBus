@@ -1,11 +1,8 @@
-﻿using App.Constants;
-using f14.MessageBus.RabbitMQ;
+﻿using f14.MessageBus.RabbitMQ;
 using f14.MessageBus.RabbitMQ.Internals;
-using f14.RetryPolly;
 using Microsoft.Extensions.Logging;
 using Moq;
 using RabbitMQ.Client;
-using Shared.RabbitMQ.App;
 using Testcontainers.RabbitMq;
 
 namespace Tests.RabbitMQ
@@ -31,24 +28,6 @@ namespace Tests.RabbitMQ
         #region Utility
 
         protected static ILogger<T> CreateLogger<T>() => Mock.Of<ILogger<T>>();
-
-        protected RabbitMQAppOptions CreateOptions()
-        {
-            return new RabbitMQAppOptions
-            {
-                ConnectionString = _rabbitMqContainer.GetConnectionString(),
-                CalculatorExchange = new RabbitMQExchangeOptions
-                {
-                    Name = AppConstants.CalculatorExchangeName,
-                    Queue = AppConstants.CalculatorQueueName
-                },
-                ConnectionRetryPolicy = new RetryPolicyInfo
-                {
-                    RetryCount = 1,
-                    RetryDelayInMilliseconds = 500
-                }
-            };
-        }
 
         protected IConnectionFactoryProvider CreateConnectionFactoryProvider()
         {
