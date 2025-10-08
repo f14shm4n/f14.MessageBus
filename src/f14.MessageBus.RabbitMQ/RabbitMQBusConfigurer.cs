@@ -23,6 +23,8 @@ namespace f14.MessageBus.RabbitMQ
 
         public RabbitMQBusConfigurer Connection(Action<IConnectionFactory, IRabbitMQPersistentConnectionConfiguration> configure)
         {
+            ArgumentNullException.ThrowIfNull(configure);
+            // TODO: Move all stuff related with IConnectionFactory => IRabbitMQPersistentConnectionConfiguration
             _connectionFactoryProvider.SetConnectionFactory(new ConnectionFactory());
             configure(_connectionFactoryProvider.GetConnectionFactory(), _connectionConfig);
             return this;
@@ -30,18 +32,21 @@ namespace f14.MessageBus.RabbitMQ
 
         public RabbitMQBusConfigurer BasicProperties(Action<BasicProperties> configure)
         {
+            ArgumentNullException.ThrowIfNull(configure);
             configure(_basicPropertiesProvider.GetBasicProperties());
             return this;
         }
 
         public RabbitMQBusConfigurer PublishEndPoint(Action<IRabbitMQExchangeConfigurer> configure)
         {
+            ArgumentNullException.ThrowIfNull(configure);
             configure(new RabbitMQExchangeConfigurer(_declarator, _publisherEndPoints));
             return this;
         }
 
         public RabbitMQBusConfigurer ConsumeEndPoint(Action<IRabbitMQExchangeConfigurer> configure)
         {
+            ArgumentNullException.ThrowIfNull(configure);
             configure(new RabbitMQExchangeConfigurer(_declarator, _consumerEndPoints));
             return this;
         }

@@ -27,7 +27,7 @@ namespace f14.MessageBus.RabbitMQ.Internals
             {
                 return false;
             }
-            return await base.TryOpenAsync(cancellationToken);
+            return await base.TryOpenAsync(cancellationToken).ConfigureAwait(false);
         }
 
         protected override async Task OnChannelCreatedAsync(IChannel channel, CancellationToken cancellationToken = default)
@@ -41,7 +41,7 @@ namespace f14.MessageBus.RabbitMQ.Internals
                     queue: name,
                     autoAck: false,
                     consumer: consumer,
-                    cancellationToken: cancellationToken);
+                    cancellationToken: cancellationToken).ConfigureAwait(false);
             }
         }
     }

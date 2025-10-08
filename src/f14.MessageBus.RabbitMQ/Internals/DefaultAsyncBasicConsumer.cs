@@ -18,20 +18,20 @@ namespace f14.MessageBus.RabbitMQ.Internals
             ConsumerResolveAction action = ConsumerResolveAction.Ack;
             try
             {
-                await _messageProcessor.ProcessMessageAsync(routingKey, body, cancellationToken);
+                await _messageProcessor.ProcessMessageAsync(routingKey, body, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                action = await _errorResolver.ResolveProcessingErrorAsync(routingKey, body, ex, cancellationToken);
+                action = await _errorResolver.ResolveProcessingErrorAsync(routingKey, body, ex, cancellationToken).ConfigureAwait(false);
             }
 
             switch (action)
             {
                 case ConsumerResolveAction.Ack:
-                    await Channel.BasicAckAsync(deliveryTag, multiple: false, cancellationToken);
+                    await Channel.BasicAckAsync(deliveryTag, multiple: false, cancellationToken).ConfigureAwait(false);
                     break;
                 default:
-                    await Channel.BasicNackAsync(deliveryTag, multiple: false, requeue: false, cancellationToken);
+                    await Channel.BasicNackAsync(deliveryTag, multiple: false, requeue: false, cancellationToken).ConfigureAwait(false);
                     break;
             }
         }

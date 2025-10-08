@@ -28,20 +28,20 @@ namespace f14.MessageBus.RabbitMQ.Internals
 
             if (!_connection.IsConnected)
             {
-                await _connection.TryConnectAsync(cancellationToken);
+                await _connection.TryConnectAsync(cancellationToken).ConfigureAwait(false);
             }
 
-            await _channelLock.WaitAsync(cancellationToken);
+            await _channelLock.WaitAsync(cancellationToken).ConfigureAwait(false);
             try
             {
-                _channel = await _connection.CreateChannelAsync(cancellationToken);
+                _channel = await _connection.CreateChannelAsync(cancellationToken).ConfigureAwait(false);
                 if (IsOpen)
                 {
                     // TODO: add metric
                     //_logger.LogTrace("Created new RabbitMQ persistent channel.");
                     _channel.CallbackExceptionAsync += Channel_CallbackExceptionAsync;
 
-                    await OnChannelCreatedAsync(_channel, cancellationToken);
+                    await OnChannelCreatedAsync(_channel, cancellationToken).ConfigureAwait(false);
                     return true;
                 }
             }
@@ -72,10 +72,10 @@ namespace f14.MessageBus.RabbitMQ.Internals
 
             if (_channel is not null)
             {
-                await _channel.DisposeAsync();
+                await _channel.DisposeAsync().ConfigureAwait(false);
             }
 
-            await TryOpenAsync(@event.CancellationToken);
+            await TryOpenAsync(@event.CancellationToken).ConfigureAwait(false);
         }
 
         #endregion
@@ -90,7 +90,7 @@ namespace f14.MessageBus.RabbitMQ.Internals
 
         public async ValueTask DisposeAsync()
         {
-            await DisposeAsyncCore();
+            await DisposeAsyncCore().ConfigureAwait(false);
 
             Dispose(false);
             GC.SuppressFinalize(this);
@@ -113,7 +113,7 @@ namespace f14.MessageBus.RabbitMQ.Internals
         {
             if (_channel is not null)
             {
-                await _channel.DisposeAsync();
+                await _channel.DisposeAsync().ConfigureAwait(false);
             }
             _channelLock.Dispose();
         }

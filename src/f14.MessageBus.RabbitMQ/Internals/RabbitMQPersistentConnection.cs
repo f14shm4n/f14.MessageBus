@@ -44,7 +44,7 @@ namespace f14.MessageBus.RabbitMQ.Internals
                 return true;
             }
 
-            await _connLock.WaitAsync(cancellationToken);
+            await _connLock.WaitAsync(cancellationToken).ConfigureAwait(false);
             try
             {
                 var polly = Policy
@@ -55,7 +55,7 @@ namespace f14.MessageBus.RabbitMQ.Internals
                         _logger.LogRetryFailedToEstablishConnection(time.TotalSeconds, ex.Message);
                     });
 
-                await polly.ExecuteAsync(async ct => _connection = await _connectionFactory.CreateConnectionAsync(ct), cancellationToken);
+                await polly.ExecuteAsync(async ct => _connection = await _connectionFactory.CreateConnectionAsync(ct).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
 
                 if (!IsConnected)
                 {
@@ -82,21 +82,21 @@ namespace f14.MessageBus.RabbitMQ.Internals
         {
             _logger.LogConnectionBlocked();
 
-            await TryConnectAsync(@event.CancellationToken);
+            await TryConnectAsync(@event.CancellationToken).ConfigureAwait(false);
         }
 
         private async Task Connection_ConnectionShutdownAsync(object sender, ShutdownEventArgs @event)
         {
             _logger.LogConnectionShutdown();
 
-            await TryConnectAsync(@event.CancellationToken);
+            await TryConnectAsync(@event.CancellationToken).ConfigureAwait(false);
         }
 
         private async Task Connection_CallbackExceptionAsync(object sender, CallbackExceptionEventArgs @event)
         {
             _logger.LogConnectionCallbackException();
 
-            await TryConnectAsync(@event.CancellationToken);
+            await TryConnectAsync(@event.CancellationToken).ConfigureAwait(false);
         }
 
         #endregion
@@ -111,7 +111,7 @@ namespace f14.MessageBus.RabbitMQ.Internals
 
         public async ValueTask DisposeAsync()
         {
-            await DisposeAsyncCore();
+            await DisposeAsyncCore().ConfigureAwait(false);
 
             Dispose(false);
             GC.SuppressFinalize(this);
@@ -134,7 +134,7 @@ namespace f14.MessageBus.RabbitMQ.Internals
         {
             if (_connection is not null)
             {
-                await _connection.DisposeAsync();
+                await _connection.DisposeAsync().ConfigureAwait(false);
                 _connection = null;
             }
             _connLock.Dispose();

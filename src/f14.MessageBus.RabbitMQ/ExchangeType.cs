@@ -22,6 +22,8 @@ namespace f14.MessageBus.RabbitMQ
             return GetEnumerator();
         }
 
+        public override string ToString() => _value;
+
         #endregion
 
         #region Static
@@ -32,7 +34,8 @@ namespace f14.MessageBus.RabbitMQ
 
         public static implicit operator string(ExchangeType type)
         {
-            return type._value;
+            ArgumentNullException.ThrowIfNull(type);
+            return type.ToString();
         }
 
         #endregion

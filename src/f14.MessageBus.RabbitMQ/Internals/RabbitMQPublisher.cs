@@ -1,4 +1,5 @@
-﻿using Polly;
+﻿using Microsoft.Extensions.Logging;
+using Polly;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using System.Net.Sockets;
@@ -12,6 +13,7 @@ namespace f14.MessageBus.RabbitMQ.Internals
 
         private readonly IRabbitMQPersistentConnection _connection;
         private readonly IMessageSerializer _messageSerializer;
+        private readonly ILogger<RabbitMQPublisher> _logger;
         private readonly IRabbitMQEndPointCollection _endPoints;
 
         private readonly Dictionary<string, HashSet<string>> _publishingMap = [];
@@ -19,10 +21,12 @@ namespace f14.MessageBus.RabbitMQ.Internals
         public RabbitMQPublisher(
             IRabbitMQPersistentConnection connection,
             IMessageSerializer messageSerializer,
+            ILogger<RabbitMQPublisher> logger,
             IRabbitMQEndPointCollection endPoints)
         {
             _connection = connection;
             _messageSerializer = messageSerializer;
+            _logger = logger;
             _endPoints = endPoints;
 
             _publishingMap = EndPoints.MapRoutingKeyToExchange();
@@ -34,7 +38,7 @@ namespace f14.MessageBus.RabbitMQ.Internals
         {
             ArgumentNullException.ThrowIfNull(message);
 
-            
+
             if (!_connection.IsConnected)
             {
                 ThrowHelper.NoConnection();
@@ -49,8 +53,8 @@ namespace f14.MessageBus.RabbitMQ.Internals
             // TODO: replace logger by metrics
             // TODO: I guess it can be published in parallel mode  
 
-            //_logger.LogTrace("Creating new RabbitMQ channel for publish.");
-            await using (var channel = await _connection.CreateChannelAsync(cancellationToken))
+            var channel = await _connection.CreateChannelAsync(cancellationToken).ConfigureAwait(false);
+            await using (channel.ConfigureAwait(false))
             {
                 //_logger.LogTrace("Sending message to RabbitMQ. MessageType: '{Type}'", messageTypeName);
 
@@ -59,10 +63,10 @@ namespace f14.MessageBus.RabbitMQ.Internals
                     .Or<BrokerUnreachableException>()
                     .WaitAndRetryAsync(RetryCount, retryAttempt => TimeSpan.FromMilliseconds(RetryDelay * retryAttempt), (ex, time) =>
                     {
-                        //_logger.LogWarning(ex, "Failed to publish message. MessageType: '{Type}', after {Time} sec. ({Error})", messageTypeName, $"{time.TotalSeconds:n0}", ex.Message);
+                        _logger.LogRetryFailedToPublishMessage(messageTypeName, time.TotalSeconds, ex.Message);
                     });
 
-                var body = _messageSerializer.Serialize(message);
+                var body = await _messageSerializer.SerializeAsync(message, cancellationToken).ConfigureAwait(false);
                 foreach (var exchange in exchanges)
                 {
                     await policy.ExecuteAsync(async ct =>
@@ -73,11 +77,17 @@ namespace f14.MessageBus.RabbitMQ.Internals
                             mandatory: true,
                             basicProperties: basicProperties,
                             body: body,
-                            cancellationToken: ct);
+                            cancellationToken: ct).ConfigureAwait(false);
 
-                    }, cancellationToken: cancellationToken);
+                    }, cancellationToken: cancellationToken).ConfigureAwait(false);
                 }
             }
         }
+    }
+
+    internal static partial class LoggerExtensions
+    {
+        [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to publish message. MessageType: '{MessageTypeName}', after {Time:n0} sec. Error: '{errorMessage}.")]
+        public static partial void LogRetryFailedToPublishMessage(this ILogger logger, string messageTypeName, double time, string errorMessage);
     }
 }

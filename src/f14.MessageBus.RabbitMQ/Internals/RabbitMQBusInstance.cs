@@ -62,7 +62,7 @@ namespace f14.MessageBus.RabbitMQ.Internals
             _logger.LogStartBusInstance();
 
             // Open RabbitMQ connection
-            await _connection.TryConnectAsync(cancellationToken);
+            await _connection.TryConnectAsync(cancellationToken).ConfigureAwait(false);
             if (!_connection.IsConnected)
             {
                 _logger.LogCannotStartBusInstance();
@@ -71,18 +71,18 @@ namespace f14.MessageBus.RabbitMQ.Internals
             // Apply declarations
             if (_declarations.Count > 0)
             {
-                await ApplyConfiguratorsAsync(_connection, _declarations, cancellationToken);
+                await ApplyConfiguratorsAsync(_connection, _declarations, cancellationToken).ConfigureAwait(false);
             }
             // Apply bindings from publisher
             if (_publisher is not null)
             {
-                await ApplyConfiguratorsAsync(_connection, _publisher.EndPoints.SelectMany(x => x.Bindings), cancellationToken);
+                await ApplyConfiguratorsAsync(_connection, _publisher.EndPoints.SelectMany(x => x.Bindings), cancellationToken).ConfigureAwait(false);
             }
             // Apply bindings from consumer and start consuming
             if (_consumerChannel is not null)
             {
-                await ApplyConfiguratorsAsync(_connection, _consumerChannel.EndPoints.SelectMany(x => x.Bindings), cancellationToken);
-                await _consumerChannel.TryOpenAsync(cancellationToken);
+                await ApplyConfiguratorsAsync(_connection, _consumerChannel.EndPoints.SelectMany(x => x.Bindings), cancellationToken).ConfigureAwait(false);
+                await _consumerChannel.TryOpenAsync(cancellationToken).ConfigureAwait(false);
             }
 
             _logger.LogBusInstanceStarted();
@@ -92,17 +92,18 @@ namespace f14.MessageBus.RabbitMQ.Internals
         {
             if (_consumerChannel != null)
             {
-                await _consumerChannel.DisposeAsync();
+                await _consumerChannel.DisposeAsync().ConfigureAwait(false);
             }
         }
 
         private static async Task ApplyConfiguratorsAsync(IRabbitMQPersistentConnection connection, IEnumerable<Func<IChannel, CancellationToken, Task>> items, CancellationToken cancellationToken = default)
         {
-            await using (var channel = await connection.CreateChannelAsync(cancellationToken))
+            var channel = await connection.CreateChannelAsync(cancellationToken).ConfigureAwait(false);
+            await using (channel.ConfigureAwait(false))
             {
                 foreach (var d in items)
                 {
-                    await d(channel, cancellationToken);
+                    await d(channel, cancellationToken).ConfigureAwait(false);
                 }
             }
         }
