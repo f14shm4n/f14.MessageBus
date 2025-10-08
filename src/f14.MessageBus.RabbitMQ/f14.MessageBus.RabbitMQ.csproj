@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\shared\src\f14.Common\f14.Common.csproj" />
+    <ProjectReference Include="..\..\shared\f14.Common\src\f14.Common\f14.Common.csproj" />
     <ProjectReference Include="..\f14.MessageBus\f14.MessageBus.csproj" />
   </ItemGroup>
 
