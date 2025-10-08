@@ -1,5 +1,4 @@
-﻿using f14.MessageBus.RabbitMQ;
-using RabbitMQ.Client;
+﻿using RabbitMQ.Client;
 
 namespace f14.MessageBus.RabbitMQ.Internals
 {

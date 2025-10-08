@@ -1,5 +1,4 @@
-﻿using f14.MessageBus.RabbitMQ;
-using f14.RetryPolly;
+﻿using f14.RetryPolly;
 
 namespace f14.MessageBus.RabbitMQ.Internals
 {

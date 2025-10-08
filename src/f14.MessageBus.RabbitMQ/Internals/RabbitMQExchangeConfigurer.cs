@@ -1,6 +1,4 @@
-﻿using f14.MessageBus.RabbitMQ;
-
-namespace f14.MessageBus.RabbitMQ.Internals
+﻿namespace f14.MessageBus.RabbitMQ.Internals
 {
     internal sealed class RabbitMQExchangeConfigurer : IRabbitMQExchangeConfigurer, IRabbitMQQueueConfigurer, IRabbitMQEndPointConfigurer
     {
