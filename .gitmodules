@@ -1,4 +1,1 @@
-[submodule "shared"]
-	path = shared
-	url = https://github.com/f14shm4n/f14.Common.git
-	branch = dev
+
