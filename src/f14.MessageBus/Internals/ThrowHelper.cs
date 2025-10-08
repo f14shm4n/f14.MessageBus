@@ -1,5 +1,4 @@
-﻿using f14.MessageBus;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace f14.MessageBus.Internals
 {

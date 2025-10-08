@@ -2,7 +2,7 @@
 {
     public interface IMessageSerializer
     {
-        byte[] Serialize(object? message);
-        object? Deserialize(byte[] message, Type messageType);
+        ValueTask<byte[]> SerializeAsync(object? message, CancellationToken cancellationToken = default);
+        ValueTask<object?> DeserializeAsync(byte[] message, Type messageType, CancellationToken cancellationToken = default);
     }
 }

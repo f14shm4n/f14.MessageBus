@@ -38,14 +38,14 @@ namespace f14.MessageBus.Internals
 
             using (var scope = _scopeFactory.CreateScope())
             {
-                var message = _messageSerializer.Deserialize(messageBody.ToArray(), messageType);
+                var message = await _messageSerializer.DeserializeAsync(messageBody.ToArray(), messageType, cancellationToken).ConfigureAwait(false);
                 foreach (var consumerType in consumerTypes)
                 {
                     // We using IDisposable to clear consumer instance after invoke
                     using (var invoker = _consumerMetaFabric.GetInvoker(scope, consumerType, messageType))
                     {
                         await Task.Yield();
-                        await invoker.InvokeAsync([message, cancellationToken]);
+                        await invoker.InvokeAsync([message, cancellationToken]).ConfigureAwait(false);
                     }
                 }
             }
