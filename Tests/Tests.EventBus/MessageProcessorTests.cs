@@ -32,7 +32,8 @@ namespace Tests.EventBus
         public async Task ProcessMessageAsync_Should_NotFail()
         {
             var processor = GetMessageProcessor();
-            var act = async () => processor.ProcessMessageAsync(typeof(Int32Message).Name, await _messageSerializer.SerializeAsync(new Int32Message() { Value = 100 }));
+            var bytes = await _messageSerializer.SerializeAsync(new Int32Message() { Value = 100 });
+            var act = () => processor.ProcessMessageAsync(typeof(Int32Message).Name, bytes);
             await act.Should().NotThrowAsync();
         }
 
@@ -40,7 +41,8 @@ namespace Tests.EventBus
         public async Task ProcessMessageAsync_Should_Fail()
         {
             var processor = GetMessageProcessor();
-            var act = async () => processor.ProcessMessageAsync(typeof(Int64Message).Name, await _messageSerializer.SerializeAsync(new Int64Message() { Value = 100 }));
+            var bytes = await _messageSerializer.SerializeAsync(new Int64Message() { Value = 100 });
+            var act = () => processor.ProcessMessageAsync(typeof(Int64Message).Name, bytes);
             await act.Should().ThrowAsync<InvalidOperationException>();
         }
 
