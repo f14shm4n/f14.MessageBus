@@ -36,7 +36,7 @@ namespace f14.MessageBus.Internals
             return this;
         }
 
-        public IBusInitializer ReplaceMessageSerializer<TMessageSerializerImpl>() where TMessageSerializerImpl : class, IMessageSerializer
+        public IBusInitializer UseMessageSerializer<TMessageSerializerImpl>() where TMessageSerializerImpl : class, IMessageSerializer
         {
             _services.Replace(ServiceDescriptor.Singleton<IMessageSerializer, TMessageSerializerImpl>());
             return this;

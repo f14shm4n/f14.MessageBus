@@ -1,129 +1,33 @@
 # f14.MessageBus
 
-This project provides a common infrastructure for implementing a message bus.
+### **[STAGE]**: `Development`
 
-Target platform: `.NET 8`
+This project provides a common infrastructure of a message bus.
 
-Supports porviders:
+|Package|Version|.NET|
+|-|-|-|
+|f14.MessageBus|`8.0.0.0`|8.0|
+|f14.MessageBus.RabbitMQ|`8.0.0.0`|8.0|
 
-- RabbitMQ
+
+| Broker | Support |
+|--------|---------|
+|RabbitMQ|`yes, in work`|
+|Apache Kafka|`in plans`|
+
 
 ## How to use
 
-This project is currently targeted for use with `Asp.Net Core`.
+This project is currently targeted for use with `Asp.Net Core DI container`. 
 
-1. Add f14.MessageBus to DI container and configure it.
+So, if you are not using Asp.Net Core, you will need to use `IServiceCollection` in your project.
 
-### Publisher
+**Content**:
 
-*Program.cs**
+- [Core configuration](docs/extra_configuration.md)
 
-```csharp
-...
-var builder = WebApplication.CreateBuilder(args);
+**Rabbit MQ**:
 
-builder.Services
-    .AddMessageBus(setup =>
-    {
-        setup
-            .UseBus<RabbitMQBusConfigurer>(config =>
-            {
-                config                    
-                    .Connection((cf, cc) =>
-                    {        
-                        // Configure connection to RabbitMQ
-                        cf.Uri = new Uri("amqp://guest:guest@localhost:5672/");
-                    })
-                    // Detailed configuration
-                    .PublishEndPoint(c =>
-                    {
-                        c
-                        .Exchange("your_exchange_name", ExchangeType.Direct)
-                        .Queue("your_queue_name")
-                        .EndPoint(ep => 
-                        {
-                            endpoint.Message<YourMessage1>();
-                            endpoint.Message<YourMessage2>();
-                            ...
-                            endpoint.Message<YourMessageN>();
-                        });
-                    })
-                    // Or
-                    .PublishEndPoint("your_exchange_name", "your_queue_name", endpoint =>
-                    {
-                        endpoint.Message<YourMessage1>();
-                        endpoint.Message<YourMessage2>();
-                        ...
-                        endpoint.Message<YourMessageN>();
-                    });
-            });
-    });
-...
-```
-
-### Consumer
-
-*Program.cs**
-
-```csharp
-...
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Services
-    .AddMessageBus(setup =>
-    {
-        setup
-            .Consume<SpecificMessage, SpecificMessageConsumer>() // Register message and consumer
-            .UseBus<RabbitMQBusConfigurer>(config =>
-            {
-                config
-                    .Connection((cf, cc) =>
-                    {
-                        // Configure connection to RabbitMQ
-                        cf.Uri = new Uri("amqp://guest:guest@localhost:5672/");
-                    })
-                    // Detailed configuration
-                    .ConsumeEndPoint(c =>
-                    {
-                        c
-                        .Exchange("your_exchange_name", ExchangeType.Direct)
-                        .Queue("your_queue_name")
-                        .EndPoint(ep => 
-                        {
-                            endpoint.Message<SpecificMessage>();
-                        });
-                    })
-                    // Or 
-                    .ConsumeEndPoint("your_exchange_name", "your_queue_name", endpoint =>
-                    {
-                        endpoint.Message<SpecificMessage>();
-                    });
-                    // Or 
-                    .ConsumeEndPoint<SpecificMessage>("your_exchange_name", "your_queue_name");
-            });
-    });
-...
-```
- 
-*SpecificMessage.cs*
-
-```csharp
-public class SpecificMessage
-{
-    ...
-}
-```
-
-*SpecificMessageConsumer.cs*
-
-```csharp
-
-public class SpecificMessageConsumer : IConsumer<SpecificMessage>
-{
-        public Task ConsumeAsync(SpecificMessage message, CancellationToken token = default)
-        {
-            // Process your message
-            return Task.CompletedTask;
-        }
-}
-```
+- [Extra configuration](docs/rabbitmq_extra_configuration.md)
+- [Publisher](docs/rabbitmq_publisher.md)
+- [Consumer](docs/rabbitmq_consumer.md)
