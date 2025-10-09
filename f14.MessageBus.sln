@@ -20,13 +20,16 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "f14.MessageBus.RabbitMQ", "src\f14.MessageBus.RabbitMQ\f14.MessageBus.RabbitMQ.csproj", "{A7313181-8DE3-FE0C-7999-2112DD6E6967}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{B192CD10-BC16-4037-B85A-124AA9DD74BC}"
+	ProjectSection(SolutionItems) = preProject
+		docs\extra_configuration.md = docs\extra_configuration.md
+		docs\rabbitmq_consumer.md = docs\rabbitmq_consumer.md
+		docs\rabbitmq_extra_configuration.md = docs\rabbitmq_extra_configuration.md
+		docs\rabbitmq_publisher.md = docs\rabbitmq_publisher.md
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "f14.Common", "shared\f14.Common\src\f14.Common\f14.Common.csproj", "{26AA1376-DFF5-27BF-FA43-A06CBB601329}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{64B68997-7EB1-4258-B417-EF219AD5F7FA}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-	EndProjectSection
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sln_items", "sln_items", "{B838FA62-2BD2-4D6F-B6A2-5B922CEE4282}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
